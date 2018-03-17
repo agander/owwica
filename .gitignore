@@ -18,3 +18,57 @@ cabal.sandbox.config
 .stack-work/
 cabal.project.local
 .HTF/
+
+# misc stuff
+_*
+*~
+*.o
+
+# dev stuff
+.build
+.idea
+/*.iml
+.shake
+.tmp
+.vscode
+tags
+TAGS
+/debug.log
+/tools/pandoc-demote-headers
+/tools/pandoc-drop-html-blocks
+/tools/pandoc-drop-html-inlines
+/tools/pandoc-drop-links
+/tools/pandoc-drop-notes
+/tools/pandoc-drop-toc
+
+# Tricksy rules ignoring some typical temp files.
+# For troubleshooting: git check-ignore --verbose PATHS...
+# 1- or 2-character filenames, maybe with an extension; but not directories
+[a-z0-9]
+[a-z0-9].*
+[a-z0-9][a-z0-9]
+[a-z0-9][a-z0-9].*
+![a-z0-9]/
+![a-z0-9].*/
+![a-z0-9][a-z0-9]/
+![a-z0-9][a-z0-9].*/
+# files/directories beginning with a number
+/[0-9]*
+#
+*.j
+
+# haskell stuff
+*.dyn_hi
+*.dyn_o
+*.hi
+*.p_o
+*.hp
+cabal-dev*
+cabal.project.local
+cabal.sandbox.config
+dist/
+dist-newstyle/
+/Shake
+/.shake.html
+.stack-work/
+
