@@ -11,11 +11,11 @@ e.g.
 owwica ch
 
 gives: -
-
+```
 /usr/bin/chmod
 /usr/bin/chgrp
 /usr/bin/chown
-
+```
 
 =*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*
 
