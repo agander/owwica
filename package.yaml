@@ -1,0 +1,20 @@
+name:                owwica
+version:             0.0.1
+#synopsis:
+#description:
+homepage:            https://github.com/agander/owwica#readme
+license:             BSD3
+author:              Giles Anderson
+maintainer:          agander@gmail.com
+copyright:           2018 Giles Anderson
+category:            Student
+extra-source-files:
+- README.md
+
+dependencies:
+  - base >= 4.7 && < 5
+
+executables:
+  owwica:
+    source-dirs:      src
+    main:             Main.hs
