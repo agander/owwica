@@ -1,20 +1,77 @@
 name:                owwica
-version:             0.0.1
+version:             0.0.2
 #synopsis:
 #description:
 homepage:            https://github.com/agander/owwica#readme
-license:             BSD3
-author:              Giles Anderson
+github:              agander/owwica
+license:             GPL-3
+author:              A Anderson
 maintainer:          agander@gmail.com
-copyright:           2018 Giles Anderson
+copyright:           2018 A Anderson
 category:            Student
 extra-source-files:
 - README.md
 
 dependencies:
   - base >= 4.7 && < 5
+  - split >=0.2.3
+
+library:
+  source-dirs: src
+  exposed-modules:
+  - Lib
+  dependencies:
+  - base >=4.7 && <5
+  - directory >=1.3.0.0
+  - filepath >=1.4.1
+  - text >=1.2.2.2
+  - bytestring >=0.10.8.1
 
 executables:
   owwica:
-    source-dirs:      src
+    source-dirs:      app
     main:             Main.hs
+    dependencies:
+    - owwica
+
+#name: dtmpl
+#version: '0.0.4'
+#category: Student
+#license: BSD3
+#github: agander/dtmpl
+#extra-source-files:
+#- README.md
+#executables:
+#  dtmpl:
+#    main: Main.hs
+#    source-dirs: app
+#    ghc-options:
+#    - -Wall
+#    - -threaded
+#    - -rtsopts
+#    - -with-rtsopts=-N
+#    dependencies:
+#    - base
+#    - dtmpl
+#    - directory >=1.3.0.0
+#    - filepath >=1.4.1
+#    - regex >=0.0.5
+#    - regex-pcre >=0.0.5
+#    - bytestring
+#    - text
+#    - megaparsec
+#    - cassava >=0.4.5.0
+#tests:
+#  dtmpl-test:
+#    main: Spec.hs
+#    source-dirs: test
+#    ghc-options:
+#    - -threaded
+#    - -rtsopts
+#    - -with-rtsopts=-N
+#    dependencies:
+#    - base
+#    - dtmpl
+#    - test-framework
+#    - test-framework-quickcheck2
+#    - QuickCheck
