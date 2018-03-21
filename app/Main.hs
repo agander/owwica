@@ -3,6 +3,7 @@ module Main where
 import Lib
 import Data.List.Split (splitOn)
 import System.Environment (getEnv)
+import System.Directory (listDirectory)
 
 main :: IO ()
 main = do
@@ -18,6 +19,12 @@ main = do
 
   -- | Convert the [[Char]] to [FilePath]
   let fp_paths = map str_to_filepath paths
+
+  -- | Get all binaries from the list of FilePath paths
+  --let all_binaries = mapM listDirectory $ take 3 fp_paths
+  all_binaries <- mapM listDirectory $ take 3 fp_paths
+  mapM print all_binaries
+  -- ^^ fails, saying that a path does not exist in $PATH: TODO
 
   -- | foreach path ([Char]): 
 
