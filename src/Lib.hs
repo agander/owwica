@@ -88,12 +88,14 @@ datumT = T.pack "cassava_eg.sh~\n\
   \.fsconfig.sh.un~\n"
 
 
+-- | Small exercise from haskellbook - ignore
 myzip :: [a] -> [b] -> [(a, b)]
 myzip [] [] = []
 myzip [_] [] = []
 myzip [] [_] = []
 myzip (x:xs) (y:ys) = (x,y) : myzip xs ys
 
+-- | Small exercise from haskellbook - ignore
 myzipWith :: (a -> b -> c) -> [a] -> [b] -> [c]
 myzipWith f [] [] = []
 myzipWith f [_] [] = []
