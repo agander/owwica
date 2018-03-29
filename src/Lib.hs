@@ -5,7 +5,12 @@ module Lib
     , get_paths
     , getAllPathContents
     --, myzip
-    --, myzipWith     
+    --, myzipWith
+    , lose_io
+    , zeta
+    , blah'
+    , blah
+    , woot
     ) where
 
 import System.Directory (getDirectoryContents)
@@ -15,6 +20,8 @@ import Data.List.Split (splitOn)
 import qualified Data.List as L
 import Data.Foldable (foldMap)
 import qualified Data.ByteString as B
+
+import Debug.Trace
 
 -- | No idea what this does
 getAllPathContents :: Monad m => [FilePath] -> m [IO [FilePath]]
@@ -102,4 +109,17 @@ myzipWith f [_] [] = []
 myzipWith f [] [_] = []
 myzipWith f (x:xs) (y:ys) = x `f` y : myzipWith f xs ys
 
+--lose_io :: (IO a) -> a
+lose_io = id
+
+blah :: IO String
+blah = return "blah"
+
+zeta :: IO Char
+zeta = return 'z'
+
+blah' = trace "outer trace" blah
+
+woot :: IO String
+woot = return (trace "inner trace" "woot")
 
