@@ -7,19 +7,19 @@ module Lib
     --, myzip
     --, myzipWith
     , lose_io
-    , zeta
-    , blah'
-    , blah
-    , woot
+    --, zeta
+    --, blah'
+    --, blah
+    --, woot
     ) where
 
 import System.Directory (getDirectoryContents)
 import System.FilePath ((</>))
 import qualified Data.Text as T
 import Data.List.Split (splitOn)
-import qualified Data.List as L
+--import qualified Data.List as L
 import Data.Foldable (foldMap)
-import qualified Data.ByteString as B
+--import qualified Data.ByteString as B
 
 import Debug.Trace
 
