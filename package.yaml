@@ -37,7 +37,9 @@ executables:
     source-dirs:      app
     main:             Main.hs
     dependencies:
-    - owwica
+      - owwica
+      - filepath >=1.4.1
+      - text >=1.2.2.2
     ghc-options:
     - -Wall
     - -fno-cse

@@ -1,10 +1,11 @@
-# owwica
+## owwica
 Oh What Was It Called Again
+===========================
 
-This facility will search for all executables that match a string criteria. 
+This facility will select all executables that match a string criteria. 
 
-It searches the entries in your ${PATH} for something like
-the parameter you supply.
+It gathers all executables from all the paths in your ${PATH} and then selects
+those that match the parameter you supply.
 
 e.g.
 
