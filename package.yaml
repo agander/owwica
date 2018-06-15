@@ -10,7 +10,7 @@ maintainer:          agander@gmail.com
 copyright:           2018 A Anderson
 category:            Student
 extra-source-files:
-- README.md
+  - README.md
 
 dependencies:
   - base >= 4.7 && < 5

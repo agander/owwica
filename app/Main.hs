@@ -4,10 +4,11 @@ import Lib
 import Data.List.Split (splitOn)
 import System.Environment (getEnv)
 import System.Directory (listDirectory, doesDirectoryExist )
-import System.IO.Unsafe
+import System.IO.Unsafe (unsafePerformIO)
 import Text.Regex.PCRE
 import System.FilePath(joinPath, (</>))
 import qualified Data.Text as T
+import Text.Printf
 
 main :: IO ()
 main = do
@@ -22,7 +23,7 @@ main = do
   let paths = splitOn ":" path
   let paths_2 = take 2 paths
   putStrLn ">>> COMMENT: a [list] of paths:"
-  print paths_2
+  print paths --_2
 
   -- | Convert the [[Char]] to [FilePath]
   let fp_paths = map str_to_filepath paths
@@ -39,7 +40,8 @@ main = do
 
   -- | and print a few
   putStrLn ">>> COMMENT: the concat'd [list] of all_binaries:"
-  print $ concat $ take 15 all_binaries
+  --print $ concat $ take 15 all_binaries
+  print $ concat all_binaries
 
   putStrLn ">>> COMMENT: The zip\'ed (list of tuples) of each path and its binaries:"
   print paths_and_bins
@@ -50,6 +52,10 @@ main = do
   putStrLn ">>> COMMENT: map the 'snd' of 'path_and_bins' and concat:"
   print $ concat $ map snd path_and_bins
   --print map (joinPath' fst_path ) (snd path_and_bins)
+
+  putStrLn "!!! TEST: A join of (fst path_and_bins !! 0) and (snd path_and_bins !! 0):"
+  let tups_of_exe_plus_path = join_path (fst $ path_and_bins !! 0) (snd $ path_and_bins !! 0)
+  mapM (print . T.unpack) tups_of_exe_plus_path
 
   -- | grab a few and concat them as thats the way they will be in the end.
   let first_5 = concat {-. take 6 $-} all_binaries
@@ -76,7 +82,12 @@ main = do
   print $ filter (=~ pat) first_5
   -- filter (=~ pat2) all_bins_strings
 
-  -- | foreach path ([Char]): 
+  -- | test to match 'us' in a list of full path exes
+  let pat2_test_2 = ["/usr/bin/usb-devices", "/usr/bin/usbhid-dump", "/usr/sbin/usb_modeswitch", "/usr/sbin/usb_modeswitch_dispatcher", "/usr/sbin/usbmuxd", "/usr/sbin/useradd"]
+  let pat2_test_3 = ["/usr/bin/devices", "/uzr/bin/usbhid-dump", "/usr/bin/dog", "/usr/bin/gdb" ]
+  let pat2 = "/.*us.*$"
+  printf "%s: [%s] in: %s" ">>> COMMENT: test for " pat2 "\"/usr/bin/devices\", \"/uzr/bin/usbhid-dump\""
+  print $ filter (=~ pat2) pat2_test_3
 
   putStrLn ">>> COMMENT: fin"
 
@@ -114,18 +125,29 @@ breakSpace (PS x s l) = accursedUnutterablePerformIO $ withForeignPtr x $ \p -> 
 
 
 -- | Join 2 strings with FilePath.joinPath or (</>)
---join_path :: String -> [T.Text] -> [T.Text]
+join_path :: [Char] -> [[Char]] -> [T.Text]
 join_path path [] = []
 join_path path (exe:exes) = T.pack (path ++ "/" ++ exe) : join_path path exes
-
 
 slash :: T.Text
 slash = T.pack "/"
 
+-- let path_and_bins = [("/home/gander/.stack/snapshots/x86_64-linux-tinfo6/lts-11.1/8.2.2/bin",["hspec-discover","cpphs","clientsession-generate","ppsh","alex","vty-mode-demo","hjsmin","vty-demo","happy"])]
+merge_exe_and_path :: [(T.Text, [T.Text])] -> [(T.Text, T.Text)]
+merge_exe_and_path = undefined
+--merge_exe_and_path (path, exes) = [ (a,b) | a <- path, b <- exes ]
+--(1,'a'),(1,'b'),(1,'c'),(2,'a'),(2,'b'),
+
+-- | Expand out a tuple of: ("pat/h", ["exe1", "exe2", "exe3", ..]) into: 
+--
+join_path' :: (T.Text, [T.Text]) -> [T.Text]
+--join_path' (path, exe:exes) =  (path ++ "/" ++ exe) : join_path path exes 
+join_path' = undefined
+
 -- | Convert [FilePath] to Text
---filepath_to_text :: FilePath -> [T.Text]
+filepath_to_text :: FilePath -> [T.Text]
 filepath_to_text [] = []
-filepath_to_text (x:xs) = T.pack x : filepath_to_text xs
+filepath_to_text (x:xs) = T.singleton x : filepath_to_text xs
 
 
 
