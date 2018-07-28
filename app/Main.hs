@@ -50,12 +50,12 @@ main = do
   print $ map fst path_and_bins
   --let fst_path = fst path_and_bins
   putStrLn ">>> COMMENT: map the 'snd' of 'path_and_bins' and concat:"
-  print $ concat $ map snd path_and_bins
+  print $ concatMap snd path_and_bins
   --print map (joinPath' fst_path ) (snd path_and_bins)
 
   putStrLn "!!! TEST: A join of (fst path_and_bins !! 0) and (snd path_and_bins !! 0):"
-  let tups_of_exe_plus_path = join_path (fst $ path_and_bins !! 0) (snd $ path_and_bins !! 0)
-  mapM (print . T.unpack) tups_of_exe_plus_path
+  let tups_of_exe_plus_path = uncurry join_path (path_and_bins !! 0)
+  mapM_ (print . T.unpack) tups_of_exe_plus_path
 
   -- | grab a few and concat them as thats the way they will be in the end.
   let first_5 = concat {-. take 6 $-} all_binaries
@@ -66,7 +66,7 @@ main = do
   -- | convert all_binaries :: [FilePath] to [[T.Text]]
   --let all_bins_text = T.map filepath_to_text first_5
 
-  -- | 
+  -- |
 
   -- | Regex.PCRE
   -- | set up a pattern to match on.
@@ -96,7 +96,7 @@ str_to_filepath :: [Char] -> FilePath
 str_to_filepath [] = []
 str_to_filepath (x:xs) = x : str_to_filepath xs
 
--- | Convert [FilePath] into paths 
+-- | Convert [FilePath] into paths
 filepath_to_str :: FilePath -> [Char]
 filepath_to_str [] = []
 filepath_to_str (x:xs) = x : filepath_to_str xs
@@ -138,16 +138,13 @@ merge_exe_and_path = undefined
 --merge_exe_and_path (path, exes) = [ (a,b) | a <- path, b <- exes ]
 --(1,'a'),(1,'b'),(1,'c'),(2,'a'),(2,'b'),
 
--- | Expand out a tuple of: ("pat/h", ["exe1", "exe2", "exe3", ..]) into: 
+-- | Expand out a tuple of: ("pat/h", ["exe1", "exe2", "exe3", ..]) into:
 --
 join_path' :: (T.Text, [T.Text]) -> [T.Text]
---join_path' (path, exe:exes) =  (path ++ "/" ++ exe) : join_path path exes 
+--join_path' (path, exe:exes) =  (path ++ "/" ++ exe) : join_path path exes
 join_path' = undefined
 
 -- | Convert [FilePath] to Text
 filepath_to_text :: FilePath -> [T.Text]
 filepath_to_text [] = []
-filepath_to_text (x:xs) = T.singleton x : filepath_to_text xs
-
-
-
+filepath_to_text xs = map T.singleton xs
