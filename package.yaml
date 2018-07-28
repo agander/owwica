@@ -43,6 +43,7 @@ executables:
     ghc-options:
     - -Wall
     - -fno-cse
+    - -rtsopts
     
 
 #name: dtmpl
