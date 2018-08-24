@@ -1,17 +1,39 @@
+{-# LANGUAGE DeriveDataTypeable #-}
+
 module Main where
 
-import Lib
 import Data.List.Split (splitOn)
 import System.Environment (getEnv)
 import System.Directory (listDirectory, doesDirectoryExist )
 import System.IO.Unsafe (unsafePerformIO)
 import Text.Regex.PCRE
-import System.FilePath(joinPath, (</>))
+--import System.FilePath(joinPath, (</>))
 import qualified Data.Text as T
 import Text.Printf
 
+import System.Console.CmdArgs
+import Data.Version
+
+version :: Version
+version = makeVersion [0,0,11]
+
+insomma :: Version -> String-> String
+insomma version str = str ++ " " ++ showVersion version
+
+newtype Args = Args{ search_criteria :: String }
+              deriving (Show, Data, Typeable)
+
+owwica_cmd_args = Args{search_criteria = "ch"
+               } &= 
+               summary (insomma version "Version:") &= 
+               program "owwica" &=
+               -- verbosityArgs [ignore] [name "silent", explicit] &=
+               details ["More details on github.com/agander/owwica"] &=
+               help "owwica:Usage: stack [-?/--help] [-V/--version] [--numeric-version] [-v|--verbose] "
+
 main :: IO ()
 main = do
+  args <- cmdArgs owwica_cmd_args
   putStrLn ">>> COMMENT: program start"
 
   -- | Get a String from getEnv "PATH"
@@ -45,7 +67,7 @@ main = do
 
   putStrLn ">>> COMMENT: The zip\'ed (list of tuples) of each path and its binaries:"
   print paths_and_bins
-  let path_and_bins = [("/home/gander/.stack/snapshots/x86_64-linux-tinfo6/lts-11.1/8.2.2/bin",["hspec-discover","cpphs","clientsession-generate","ppsh","alex","vty-mode-demo","hjsmin","vty-demo","happy"])]
+  let path_and_bins = [("/home/gander/.stack/snapshots/x86_64-linux-tinfo6/lts-12.4/8.4.3/bin",["hspec-discover","cpphs","clientsession-generate","ppsh","alex","vty-mode-demo","hjsmin","vty-demo","happy"])]
   putStrLn ">>> COMMENT: map the 'fst' of 'path_and_bins':"
   print $ map fst path_and_bins
   --let fst_path = fst path_and_bins
@@ -70,8 +92,7 @@ main = do
 
   -- | Regex.PCRE
   -- | set up a pattern to match on.
-  -- | TODO: link this with getArgs
-  let pat = "pp"
+  let pat = (search_criteria args) --"pp"
 
   -- | filter first_5 for pat ("ghc")
   putStr ">>> COMMENT: pattern is: \""
@@ -80,6 +101,7 @@ main = do
 
   putStrLn ">>> COMMENT: and the result is:"
   print $ filter (=~ pat) first_5
+  --
   -- filter (=~ pat2) all_bins_strings
 
   -- | test to match 'us' in a list of full path exes
@@ -89,6 +111,9 @@ main = do
   printf "%s: [%s] in: %s" ">>> COMMENT: test for " pat2 "\"/usr/bin/devices\", \"/uzr/bin/usbhid-dump\""
   print $ filter (=~ pat2) pat2_test_3
 
+  putStrLn ">>> COMMENT: args"
+  print =<< cmdArgs owwica_cmd_args
+  printf "%s: %s\n" "search_criteria" (search_criteria args)
   putStrLn ">>> COMMENT: fin"
 
 -- | Convert paths into [FilePath]

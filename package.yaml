@@ -1,5 +1,5 @@
 name:                owwica
-version:             0.0.3
+version:             0.0.11
 #synopsis:
 #description:
 homepage:            https://github.com/agander/owwica#readme
@@ -40,6 +40,7 @@ executables:
       - owwica
       - filepath >=1.4.1
       - text >=1.2.2.2
+      - cmdargs >=0.10.20
     ghc-options:
     - -Wall
     - -fno-cse
