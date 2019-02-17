@@ -45,7 +45,7 @@ executables:
     - -Wall
     - -fno-cse
     - -rtsopts
-    
+    - -fprint-potential-instances    
 
 #name: dtmpl
 #version: '0.0.4'

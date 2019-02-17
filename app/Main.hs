@@ -15,7 +15,7 @@ import System.Console.CmdArgs
 import Data.Version
 
 version :: Version
-version = makeVersion [0,0,11]
+version = makeVersion [0,0,12]
 
 insomma :: Version -> String-> String
 insomma version str = str ++ " " ++ showVersion version
@@ -43,7 +43,7 @@ main = do
   -- | Split the path by ":"
   -- | return [[Char]]
   let paths = splitOn ":" path
-  let paths_2 = take 2 paths
+  let paths_2 = take 3 paths
   putStrLn ">>> COMMENT: a [list] of paths:"
   print paths --_2
 
@@ -55,7 +55,7 @@ main = do
   let good_fp_paths = filter doesDirectoryExist' fp_paths
 
   -- | Get all binaries from the list of FilePath paths
-  all_binaries <- mapM listDirectory $ take 2 good_fp_paths
+  all_binaries <- mapM listDirectory $ take 4 good_fp_paths
 
   -- | (attempt to) zip a few paths and their binaries
   let paths_and_bins = zip paths_2 all_binaries
@@ -68,6 +68,7 @@ main = do
   putStrLn ">>> COMMENT: The zip\'ed (list of tuples) of each path and its binaries:"
   print paths_and_bins
   let path_and_bins = [("/home/gander/.stack/snapshots/x86_64-linux-tinfo6/lts-12.4/8.4.3/bin",["hspec-discover","cpphs","clientsession-generate","ppsh","alex","vty-mode-demo","hjsmin","vty-demo","happy"])]
+  let path_and_binsT = [(T.pack "/home/gander/.stack/snapshots/x86_64-linux-tinfo6/lts-12.4/8.4.3/bin",[T.pack "hspec-discover",T.pack "cpphs",T.pack "clientsession-generate",T.pack "ppsh",T.pack "alex",T.pack "vty-mode-demo",T.pack "hjsmin",T.pack "vty-demo",T.pack "happy"])]
   putStrLn ">>> COMMENT: map the 'fst' of 'path_and_bins':"
   print $ map fst path_and_bins
   --let fst_path = fst path_and_bins
@@ -76,7 +77,7 @@ main = do
   --print map (joinPath' fst_path ) (snd path_and_bins)
 
   putStrLn "!!! TEST: A join of (fst path_and_bins !! 0) and (snd path_and_bins !! 0):"
-  let tups_of_exe_plus_path = uncurry join_path (path_and_bins !! 0)
+  let tups_of_exe_plus_path = uncurry join_path (head path_and_bins)
   mapM_ (print . T.unpack) tups_of_exe_plus_path
 
   -- | grab a few and concat them as thats the way they will be in the end.
@@ -110,6 +111,16 @@ main = do
   let pat2 = "/.*us.*$"
   printf "%s: [%s] in: %s" ">>> COMMENT: test for " pat2 "\"/usr/bin/devices\", \"/uzr/bin/usbhid-dump\""
   print $ filter (=~ pat2) pat2_test_3
+
+  -- | test to match whatever is a main arg to the list of full path exes
+  --let pat3 = build_pat (search_criteria args)
+  let tups_of_exe_plus_path' = uncurry join_path' (head path_and_binsT)
+  let pat3 = "([^/])+([\\w\\s_-]*ch[\\w\\s_-])*$"
+  putStr ">>> COMMENT: 3rd test: supply a regex for a full path. pattern is: \""
+  putStr pat3
+  putStrLn "\""
+  putStrLn ">>> COMMENT: and the result is:"
+  print $ filter (=~ pat3) tups_of_exe_plus_path'
 
   putStrLn ">>> COMMENT: args"
   print =<< cmdArgs owwica_cmd_args
@@ -165,11 +176,16 @@ merge_exe_and_path = undefined
 
 -- | Expand out a tuple of: ("pat/h", ["exe1", "exe2", "exe3", ..]) into:
 --
-join_path' :: (T.Text, [T.Text]) -> [T.Text]
---join_path' (path, exe:exes) =  (path ++ "/" ++ exe) : join_path path exes
-join_path' = undefined
+join_path' :: T.Text -> [T.Text] -> [String]
+join_path' path [] = []
+join_path' path (exe:exes) =  (T.unpack path ++ "/" ++ T.unpack exe) : join_path' path exes
+--join_path' = undefined
 
 -- | Convert [FilePath] to Text
 filepath_to_text :: FilePath -> [T.Text]
 filepath_to_text [] = []
 filepath_to_text xs = map T.singleton xs
+
+build_pat :: [Char] -> [Char]
+build_pat pat = concat [ "([^/])+([\\w\\s_-]*" ++ pat ++ "[\\w\\s_-])*$"]
+
