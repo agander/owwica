@@ -1,1 +1,1 @@
-define([VERSION_NUMBER],[0.0.12])dnl
+define([VERSION_NUMBER],[0.0.13])dnl

@@ -15,7 +15,7 @@ import System.Console.CmdArgs
 import Data.Version
 
 version :: Version
-version = makeVersion [0,0,12]
+version = makeVersion [0,0,13]
 
 insomma :: Version -> String-> String
 insomma version str = str ++ " " ++ showVersion version
@@ -34,7 +34,7 @@ owwica_cmd_args = Args{search_criteria = "ch"
 main :: IO ()
 main = do
   args <- cmdArgs owwica_cmd_args
-  putStrLn ">>> COMMENT: program start"
+  --putStrLn ">>> COMMENT: program start"
 
   -- | Get a String from getEnv "PATH"
   -- | return String
@@ -44,8 +44,8 @@ main = do
   -- | return [[Char]]
   let paths = splitOn ":" path
   let paths_2 = take 3 paths
-  putStrLn ">>> COMMENT: a [list] of paths:"
-  print paths --_2
+  --putStrLn ">>> COMMENT: a [list] of paths:"
+  --print paths --_2
 
   -- | Convert the [[Char]] to [FilePath]
   let fp_paths = map str_to_filepath paths
@@ -61,20 +61,20 @@ main = do
   let paths_and_bins = zip paths_2 all_binaries
 
   -- | and print a few
-  putStrLn ">>> COMMENT: the concat'd [list] of all_binaries:"
-  --print $ concat $ take 15 all_binaries
-  print $ concat all_binaries
+  --putStrLn ">>> COMMENT: the concat'd [list] of all_binaries:"
+  ----print $ concat $ take 15 all_binaries
+  --print $ concat all_binaries
 
-  putStrLn ">>> COMMENT: The zip\'ed (list of tuples) of each path and its binaries:"
-  print paths_and_bins
+  --putStrLn ">>> COMMENT: The zip\'ed (list of tuples) of each path and its binaries:"
+  --print paths_and_bins
   let path_and_bins = [("/home/gander/.stack/snapshots/x86_64-linux-tinfo6/lts-12.4/8.4.3/bin",["hspec-discover","cpphs","clientsession-generate","ppsh","alex","vty-mode-demo","hjsmin","vty-demo","happy"])]
   let path_and_binsT = [(T.pack "/home/gander/.stack/snapshots/x86_64-linux-tinfo6/lts-12.4/8.4.3/bin",[T.pack "hspec-discover",T.pack "cpphs",T.pack "clientsession-generate",T.pack "ppsh",T.pack "alex",T.pack "vty-mode-demo",T.pack "hjsmin",T.pack "vty-demo",T.pack "happy"])]
-  putStrLn ">>> COMMENT: map the 'fst' of 'path_and_bins':"
-  print $ map fst path_and_bins
-  --let fst_path = fst path_and_bins
-  putStrLn ">>> COMMENT: map the 'snd' of 'path_and_bins' and concat:"
-  print $ concatMap snd path_and_bins
-  --print map (joinPath' fst_path ) (snd path_and_bins)
+  --putStrLn ">>> COMMENT: map the 'fst' of 'path_and_bins':"
+  --print $ map fst path_and_bins
+  ----let fst_path = fst path_and_bins
+  --putStrLn ">>> COMMENT: map the 'snd' of 'path_and_bins' and concat:"
+  --print $ concatMap snd path_and_bins
+  ----print map (joinPath' fst_path ) (snd path_and_bins)
 
   putStrLn "!!! TEST: A join of (fst path_and_bins !! 0) and (snd path_and_bins !! 0):"
   let tups_of_exe_plus_path = uncurry join_path (head path_and_bins)
@@ -93,16 +93,19 @@ main = do
 
   -- | Regex.PCRE
   -- | set up a pattern to match on.
-  let pat = (search_criteria args) --"pp"
+  --let pat = (search_criteria args) --"pp"
+  let pat = build_pat (search_criteria args)
 
   -- | filter first_5 for pat ("ghc")
-  putStr ">>> COMMENT: pattern is: \""
-  putStr pat
-  putStrLn "\""
+  --putStr ">>> COMMENT: pattern is: \""
+  --putStr pat
+  --putStrLn "\""
+  ----putStr ">>> COMMENT: data is: \""
+  ----mapM_ print first_5
 
-  putStrLn ">>> COMMENT: and the result is:"
-  print $ filter (=~ pat) first_5
-  --
+  --putStrLn ">>> COMMENT: and the result is:"
+  --print $ filter (=~ pat) first_5
+
   -- filter (=~ pat2) all_bins_strings
 
   -- | test to match 'us' in a list of full path exes
@@ -113,9 +116,9 @@ main = do
   print $ filter (=~ pat2) pat2_test_3
 
   -- | test to match whatever is a main arg to the list of full path exes
-  --let pat3 = build_pat (search_criteria args)
+  let pat3 = build_pat (search_criteria args)
   let tups_of_exe_plus_path' = uncurry join_path' (head path_and_binsT)
-  let pat3 = "([^/])+([\\w\\s_-]*ch[\\w\\s_-])*$"
+  --let pat3 = "([^/])+([\\w\\s_-]*ch[\\w\\s_-])*$"
   putStr ">>> COMMENT: 3rd test: supply a regex for a full path. pattern is: \""
   putStr pat3
   putStrLn "\""
@@ -186,6 +189,9 @@ filepath_to_text :: FilePath -> [T.Text]
 filepath_to_text [] = []
 filepath_to_text xs = map T.singleton xs
 
+
+-- | ([^/])*([\w-\.]*ha[\w-\.]*)$
+-- | from <https://regexr.com/?2vpj8>
 build_pat :: [Char] -> [Char]
-build_pat pat = concat [ "([^/])+([\\w\\s_-]*" ++ pat ++ "[\\w\\s_-])*$"]
+build_pat pat = concat [ "([^/])*([\\w\\s-\\.]*" ++ pat ++ "[\\w\\s-\\.]*)$"]
 
