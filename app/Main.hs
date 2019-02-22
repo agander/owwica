@@ -15,7 +15,7 @@ import System.Console.CmdArgs
 import Data.Version
 
 version :: Version
-version = makeVersion [0,0,13]
+version = makeVersion [0,0,14]
 
 insomma :: Version -> String-> String
 insomma version str = str ++ " " ++ showVersion version
@@ -25,15 +25,20 @@ newtype Args = Args{ search_criteria :: String }
 
 owwica_cmd_args = Args{search_criteria = "ch"
                } &= 
+               --{ debug &= def &= }
                summary (insomma version "Version:") &= 
                program "owwica" &=
                -- verbosityArgs [ignore] [name "silent", explicit] &=
                details ["More details on github.com/agander/owwica"] &=
-               help "owwica:Usage: stack [-?/--help] [-V/--version] [--numeric-version] [-v|--verbose] "
+               help "owwica:Usage: [-?/--help] [-V/--version] [--numeric-version] [-v|--verbose] "
 
 main :: IO ()
 main = do
   args <- cmdArgs owwica_cmd_args
+  --putStrLn ">>> COMMENT: args"
+  --print =<< cmdArgs owwica_cmd_args
+  --printf "%s: %s\n" "search_criteria" (search_criteria args)
+
   --putStrLn ">>> COMMENT: program start"
 
   -- | Get a String from getEnv "PATH"
@@ -109,26 +114,49 @@ main = do
   -- filter (=~ pat2) all_bins_strings
 
   -- | test to match 'us' in a list of full path exes
-  let pat2_test_2 = ["/usr/bin/usb-devices", "/usr/bin/usbhid-dump", "/usr/sbin/usb_modeswitch", "/usr/sbin/usb_modeswitch_dispatcher", "/usr/sbin/usbmuxd", "/usr/sbin/useradd"]
-  let pat2_test_3 = ["/usr/bin/devices", "/uzr/bin/usbhid-dump", "/usr/bin/dog", "/usr/bin/gdb" ]
-  let pat2 = "/.*us.*$"
-  printf "%s: [%s] in: %s" ">>> COMMENT: test for " pat2 "\"/usr/bin/devices\", \"/uzr/bin/usbhid-dump\""
-  print $ filter (=~ pat2) pat2_test_3
+  --let pat2_test_2 = ["/usr/bin/usb-devices", "/usr/bin/usbhid-dump", "/usr/sbin/usb_modeswitch", "/usr/sbin/usb_modeswitch_dispatcher", "/usr/sbin/usbmuxd", "/usr/sbin/useradd"]
+  --let pat2_test_3 = ["/usr/bin/devices", "/uzr/bin/usbhid-dump", "/usr/bin/dog", "/usr/bin/gdb" ]
+  --let pat2 = "/.*us.*$"
+  --printf "%s: [%s] in: %s" ">>> COMMENT: test for " pat2 "\"/usr/bin/devices\", \"/uzr/bin/usbhid-dump\""
+  --print $ filter (=~ pat2) pat2_test_3
 
   -- | test to match whatever is a main arg to the list of full path exes
   let pat3 = build_pat (search_criteria args)
+  -- | swap the comments on these next two for debugging
   let tups_of_exe_plus_path' = uncurry join_path' (head path_and_binsT)
-  --let pat3 = "([^/])+([\\w\\s_-]*ch[\\w\\s_-])*$"
+  --let tups_of_exe_plus_path' = uncurry join_path' $ take 2 path_and_bins
+  --let tups_of_exe_plus_path' = uncurry join_path path_and_bins
+
   putStr ">>> COMMENT: 3rd test: supply a regex for a full path. pattern is: \""
   putStr pat3
-  putStrLn "\""
+  --putStrLn "\""
   putStrLn ">>> COMMENT: and the result is:"
+  let final_list = filter (=~ pat3) tups_of_exe_plus_path'
   print $ filter (=~ pat3) tups_of_exe_plus_path'
+  mapM_ print final_list
 
-  putStrLn ">>> COMMENT: args"
-  print =<< cmdArgs owwica_cmd_args
-  printf "%s: %s\n" "search_criteria" (search_criteria args)
-  putStrLn ">>> COMMENT: fin"
+  --putStrLn ">>> COMMENT: fin"
+
+-- | Join 2 strings with FilePath.joinPath or (</>)
+join_path :: [Char] -> [[Char]] -> [T.Text]
+join_path path [] = []
+join_path path (exe:exes) = T.pack (path ++ "/" ++ exe) : join_path path exes
+
+slash :: T.Text
+slash = T.pack "/"
+
+-- let path_and_bins = [("/home/gander/.stack/snapshots/x86_64-linux-tinfo6/lts-11.1/8.2.2/bin",["hspec-discover","cpphs","clientsession-generate","ppsh","alex","vty-mode-demo","hjsmin","vty-demo","happy"])]
+merge_exe_and_path :: [(T.Text, [T.Text])] -> [(T.Text, T.Text)]
+merge_exe_and_path = undefined
+--merge_exe_and_path (path, exes) = [ (a,b) | a <- path, b <- exes ]
+--(1,'a'),(1,'b'),(1,'c'),(2,'a'),(2,'b'),
+
+-- | Expand out a tuple of: ("pat/h", ["exe1", "exe2", "exe3", ..]) into:
+--
+join_path' :: T.Text -> [T.Text] -> [String]
+join_path' path [] = []
+join_path' path (exe:exes) =  (T.unpack path ++ "/" ++ T.unpack exe) : join_path' path exes
+--join_path' = undefined
 
 -- | Convert paths into [FilePath]
 str_to_filepath :: [Char] -> FilePath
@@ -162,27 +190,6 @@ breakSpace (PS x s l) = accursedUnutterablePerformIO $ withForeignPtr x $ \p -> 
         | otherwise -> (PS x s i, PS x (s+i) (l-i))
 -}
 
-
--- | Join 2 strings with FilePath.joinPath or (</>)
-join_path :: [Char] -> [[Char]] -> [T.Text]
-join_path path [] = []
-join_path path (exe:exes) = T.pack (path ++ "/" ++ exe) : join_path path exes
-
-slash :: T.Text
-slash = T.pack "/"
-
--- let path_and_bins = [("/home/gander/.stack/snapshots/x86_64-linux-tinfo6/lts-11.1/8.2.2/bin",["hspec-discover","cpphs","clientsession-generate","ppsh","alex","vty-mode-demo","hjsmin","vty-demo","happy"])]
-merge_exe_and_path :: [(T.Text, [T.Text])] -> [(T.Text, T.Text)]
-merge_exe_and_path = undefined
---merge_exe_and_path (path, exes) = [ (a,b) | a <- path, b <- exes ]
---(1,'a'),(1,'b'),(1,'c'),(2,'a'),(2,'b'),
-
--- | Expand out a tuple of: ("pat/h", ["exe1", "exe2", "exe3", ..]) into:
---
-join_path' :: T.Text -> [T.Text] -> [String]
-join_path' path [] = []
-join_path' path (exe:exes) =  (T.unpack path ++ "/" ++ T.unpack exe) : join_path' path exes
---join_path' = undefined
 
 -- | Convert [FilePath] to Text
 filepath_to_text :: FilePath -> [T.Text]
