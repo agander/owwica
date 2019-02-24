@@ -16,7 +16,7 @@ import System.Console.CmdArgs
 import Data.Version
 
 version :: Version
-version = makeVersion [0,0,14]
+version = makeVersion [0,0,16]
 
 insomma :: Version -> String-> String
 insomma vsn str = str ++ " " ++ showVersion vsn
@@ -29,7 +29,7 @@ owwica_cmd_hargs = Args{search_criteria = "ch"
                --{ debug &= def &= }
                summary (insomma version "Version:") &= 
                program "owwica" &=
-               -- verbosityArgs [ignore] [name "silent", explicit] &=
+               verbosityArgs [ignore] [name "silent", explicit] &=
                details ["More details on github.com/agander/owwica"] &=
                help "owwica:Usage: [-?/--help] [-V/--version] [--numeric-version] [-v|--verbose] "
 
@@ -94,6 +94,7 @@ main = do
 
   -- | convert all_binaries :: [FilePath] to [[T.Text]]
   --let all_bins_text = T.map filepath_to_text first_5
+  -- | ^^^ poss redundant ^^^
 
   -- |
 
