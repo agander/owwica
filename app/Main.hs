@@ -6,6 +6,7 @@ import Data.List.Split (splitOn)
 import System.Environment (getEnv)
 import System.Directory (listDirectory, doesDirectoryExist )
 import System.IO.Unsafe (unsafePerformIO)
+
 import Text.Regex.PCRE
 --import System.FilePath(joinPath, (</>))
 import qualified Data.Text as T
@@ -18,12 +19,12 @@ version :: Version
 version = makeVersion [0,0,14]
 
 insomma :: Version -> String-> String
-insomma version str = str ++ " " ++ showVersion version
+insomma vsn str = str ++ " " ++ showVersion vsn
 
 newtype Args = Args{ search_criteria :: String }
               deriving (Show, Data, Typeable)
 
-owwica_cmd_args = Args{search_criteria = "ch"
+owwica_cmd_hargs = Args{search_criteria = "ch"
                } &= 
                --{ debug &= def &= }
                summary (insomma version "Version:") &= 
@@ -34,10 +35,10 @@ owwica_cmd_args = Args{search_criteria = "ch"
 
 main :: IO ()
 main = do
-  args <- cmdArgs owwica_cmd_args
-  --putStrLn ">>> COMMENT: args"
-  --print =<< cmdArgs owwica_cmd_args
-  --printf "%s: %s\n" "search_criteria" (search_criteria args)
+  hargs <- cmdArgs owwica_cmd_hargs
+  --putStrLn ">>> COMMENT: hargs"
+  --print =<< cmdArgs owwica_cmd_hargs
+  --printf "%s: %s\n" "search_criteria" (search_criteria hargs)
 
   --putStrLn ">>> COMMENT: program start"
 
@@ -98,8 +99,8 @@ main = do
 
   -- | Regex.PCRE
   -- | set up a pattern to match on.
-  --let pat = (search_criteria args) --"pp"
-  let pat = build_pat (search_criteria args)
+  --let pat = (search_criteria hargs) --"pp"
+  let pat = build_pat (search_criteria hargs)
 
   -- | filter first_5 for pat ("ghc")
   --putStr ">>> COMMENT: pattern is: \""
@@ -121,7 +122,7 @@ main = do
   --print $ filter (=~ pat2) pat2_test_3
 
   -- | test to match whatever is a main arg to the list of full path exes
-  let pat3 = build_pat (search_criteria args)
+  let pat3 = build_pat (search_criteria hargs)
   -- | swap the comments on these next two for debugging
   let tups_of_exe_plus_path' = uncurry join_path' (head path_and_binsT)
   --let tups_of_exe_plus_path' = uncurry join_path' $ take 2 path_and_bins
@@ -139,7 +140,7 @@ main = do
 
 -- | Join 2 strings with FilePath.joinPath or (</>)
 join_path :: [Char] -> [[Char]] -> [T.Text]
-join_path path [] = []
+join_path path _ = []
 join_path path (exe:exes) = T.pack (path ++ "/" ++ exe) : join_path path exes
 
 slash :: T.Text
