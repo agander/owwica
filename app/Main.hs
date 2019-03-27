@@ -159,10 +159,6 @@ build_full_paths (fp:fps) = [full_paths : build_full_paths fps]
       return (contents)
 -}
 
-  -- | join_path_binary: 
---join_path_binary :: [FilePath] -> [Char] -> [Char] -> [C.ByteString]
-join_path_binary fp_binaries path sep =  [(C.append path . C.append sep) exe  | exe <- fp_binaries]
-
 -- | Join 2 strings with FilePath.joinPath or (</>)
 join_path :: [Char] -> [[Char]] -> [T.Text]
 join_path path _ = []
@@ -191,11 +187,6 @@ join_path' path (exe:exes) =  (T.unpack path ++ "/" ++ T.unpack exe) : join_path
 str_to_filepath :: [Char] -> FilePath
 str_to_filepath [] = []
 str_to_filepath (x:xs) = x : str_to_filepath xs
-
--- | Convert [FilePath] into paths
-filepath_to_str :: FilePath -> [Char]
-filepath_to_str [] = []
-filepath_to_str (x:xs) = x : filepath_to_str xs
 
 -- | lists of lists to list
 

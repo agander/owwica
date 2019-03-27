@@ -74,6 +74,7 @@ executables:
 #      - text >=1.2.3.0
       - time >= 1.8.0.2
       - bytestring >= 0.10.8.2
+      - owwica
     ghc-options:
     - -Wall
     - -fno-cse

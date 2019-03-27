@@ -1,5 +1,8 @@
 module Lib
-    ( fp_to_bytestring
+    ( get_full_paths
+    , join_path_binary
+    , filepath_to_str
+    , fp_to_bytestring
     , get_binaries
     , getAllPathContents
     , getAbsoluteDirContents
@@ -25,6 +28,24 @@ import Data.Foldable (foldMap)
 import qualified Data.ByteString.Char8 as C
 
 import Debug.Trace
+
+get_full_paths :: FilePath -> IO [C.ByteString]
+get_full_paths fp = do 
+    all_binaries <- listDirectory fp
+    --let fpB = C.pack $ filepath_to_str fp
+    let fpS = Lib.filepath_to_str fp
+    --return $ join_path_binary all_binaries fpB $ C.pack "/"
+    return $ join_path_binary all_binaries fpS $ C.pack "/"
+
+  -- | join_path_binary: 
+--join_path_binary :: [FilePath] -> [Char] -> [Char] -> [C.ByteString]
+join_path_binary fp_binaries path sep =  [(C.append (C.pack path) . C.append sep) (C.pack exe)  | exe <- fp_binaries]
+
+-- | Convert [FilePath] into paths
+filepath_to_str :: FilePath -> [Char]
+filepath_to_str [] = []
+filepath_to_str (x:xs) = x : filepath_to_str xs
+
 -- | fp_to_bytestring
 fp_to_bytestring :: [String] -> [C.ByteString]
 fp_to_bytestring (fp:fps) = C.pack fp : fp_to_bytestring fps

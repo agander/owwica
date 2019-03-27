@@ -17,6 +17,8 @@ import System.FilePath.Posix ((</>))
 import Text.Printf
 import Text.Regex.PCRE
 
+import Lib
+
 mv_args_to_bs :: [String] -> [B.ByteString]
 mv_args_to_bs [] = []
 mv_args_to_bs (arg:args) = C.pack arg : mv_args_to_bs args
@@ -30,6 +32,8 @@ put_args = do
 get_str_l_data = ("a", ["b" , "c" , "d" ])
 
 get_b_path = C.pack "a"
+
+get_b_exes :: [C.ByteString]
 get_b_exes = [C.pack "b" , C.pack "c"] -- , C.pack "d", C.pack "happy" ]
 sep = C.pack "/"
 
@@ -55,14 +59,17 @@ main = do
 
   -- | Move the agrs to a Text array
   let b_args = mv_args_to_bs args
+  putStr ">>> COMMENT: b_args (getArgs converted to [ByteString]): *"
   mapM_ (print . show) b_args
   --let b_args_inters = C.intersperse '*' b_args
   --mapM_ (putStr . C.unpack) b_args_inters
   --putStr "\n"
 
-  -- | join the fst to each of the snd's in a tuple of (Text, [Text])
-  --let full_paths = map join_path_to_exes get_tup_l_data
-  --mapM_ (print . showText) $ join_path_to_exes get_tup_l_data
+  -- | Extract 
+  all_bins <- mapM get_full_paths args
+  let all_bins2 = concat all_bins
+  putStr ">>> COMMENT: all_bins2 ([ByteString])"
+  mapM_ (print . show) all_bins2
 
   -- | zip 2 lists
   --let path
@@ -82,13 +89,14 @@ main = do
   mapM C.putStr full_paths
   putStrLn "*"
 
-  let pat3 = build_pat "ss"
+  let pat3 = build_pat "vp"
 
   putStr ">>> COMMENT: 3rd test: supply a regex for a full path. pattern is: \""
   putStr pat3
   putStrLn "\""
   putStrLn ">>> COMMENT: and 'final_list' is:"
-  let final_list = filter (=~ pat3) full_paths
+  --let final_list = filter (=~ pat3) full_paths
+  let final_list = filter (=~ pat3) all_bins2
   --print $ filter (=~ pat3) tups_of_exe_plus_path'
 
   mapM_ print final_list
@@ -120,8 +128,10 @@ str_to_filepath :: [Char] -> FilePath
 str_to_filepath [] = []
 str_to_filepath (x:xs) = x : str_to_filepath xs
 
+{-
 -- | Convert [FilePath] into paths
 filepath_to_str :: FilePath -> [Char]
 filepath_to_str [] = []
 filepath_to_str (x:xs) = x : filepath_to_str xs
+-}
 
