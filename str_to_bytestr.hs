@@ -17,9 +17,9 @@ import System.FilePath.Posix ((</>))
 import Text.Printf
 import Text.Regex.PCRE
 
-mv_args_to_text :: [String] -> [B.ByteString]
-mv_args_to_text [] = []
-mv_args_to_text (arg:args) = C.pack arg : mv_args_to_text args
+mv_args_to_bs :: [String] -> [B.ByteString]
+mv_args_to_bs [] = []
+mv_args_to_bs (arg:args) = C.pack arg : mv_args_to_bs args
 
 put_args = do
   putStr "args: "
@@ -54,10 +54,10 @@ main = do
     otherwise -> put_args
 
   -- | Move the agrs to a Text array
-  let t_args = mv_args_to_text args
-  --mapM_ (print . showText) t_args
-  --let t_args_inters = T.intersperse '*' t_args
-  --mapM_ (putStr . T.unpack) t_args_inters
+  let b_args = mv_args_to_bs args
+  mapM_ (print . show) b_args
+  --let b_args_inters = C.intersperse '*' b_args
+  --mapM_ (putStr . C.unpack) b_args_inters
   --putStr "\n"
 
   -- | join the fst to each of the snd's in a tuple of (Text, [Text])
@@ -79,15 +79,15 @@ main = do
   let exesB = [C.pack "hspec-discover",C.pack "cpphs",C.pack "clientsession-generate",C.pack "ppsh",C.pack "alex",C.pack "vty-mode-demo",C.pack "hjsmin",C.pack "vty-demo",C.pack "happy"]
   let full_paths =  [(C.append pathB . C.append sep) exe  | exe <- exesB]
   putStr ">>> COMMENT: full_paths are: *"
-  mapM (C.putStr) full_paths
+  mapM C.putStr full_paths
   putStrLn "*"
 
   let pat3 = build_pat "ss"
 
   putStr ">>> COMMENT: 3rd test: supply a regex for a full path. pattern is: \""
   putStr pat3
-  --putStrLn "\""
-  putStrLn ">>> COMMENT: and the result is:"
+  putStrLn "\""
+  putStrLn ">>> COMMENT: and 'final_list' is:"
   let final_list = filter (=~ pat3) full_paths
   --print $ filter (=~ pat3) tups_of_exe_plus_path'
 
@@ -114,3 +114,14 @@ main = do
 -- | from <https://regexr.com/?2vpj8>
 build_pat :: [Char] -> [Char]
 build_pat pat = concat [ "([^/])*([\\w\\s-\\.]*" ++ pat ++ "[\\w\\s-\\.]*)$"]
+
+-- | Convert paths into [FilePath]
+str_to_filepath :: [Char] -> FilePath
+str_to_filepath [] = []
+str_to_filepath (x:xs) = x : str_to_filepath xs
+
+-- | Convert [FilePath] into paths
+filepath_to_str :: FilePath -> [Char]
+filepath_to_str [] = []
+filepath_to_str (x:xs) = x : filepath_to_str xs
+

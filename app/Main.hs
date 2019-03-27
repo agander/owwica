@@ -15,6 +15,11 @@ import Text.Printf
 import System.Console.CmdArgs
 import Data.Version
 
+import qualified Data.ByteString as B
+import qualified Data.ByteString.Char8 as C
+
+import Lib
+
 version :: Version
 version = makeVersion [0,0,16]
 
@@ -60,8 +65,12 @@ main = do
   -- | return [FilePath]
   let good_fp_paths = filter doesDirectoryExist' fp_paths
 
+  -- | foreach good_fp_path: do listDirectory and attach the path
+  -- | giving a full_path
+  --let full_paths = build_full_paths good_fp_paths -- >>= fp_to_bytestring
+
   -- | Get all binaries from the list of FilePath paths
-  all_binaries <- mapM listDirectory $ take 4 good_fp_paths
+  all_binaries <- mapM listDirectory $ take 5 good_fp_paths
 
   -- | (attempt to) zip a few paths and their binaries
   let paths_and_bins = zip paths_2 all_binaries
@@ -75,6 +84,7 @@ main = do
   --print paths_and_bins
   let path_and_bins = [("/home/gander/.stack/snapshots/x86_64-linux-tinfo6/lts-12.4/8.4.3/bin",["hspec-discover","cpphs","clientsession-generate","ppsh","alex","vty-mode-demo","hjsmin","vty-demo","happy"])]
   let path_and_binsT = [(T.pack "/home/gander/.stack/snapshots/x86_64-linux-tinfo6/lts-12.4/8.4.3/bin",[T.pack "hspec-discover",T.pack "cpphs",T.pack "clientsession-generate",T.pack "ppsh",T.pack "alex",T.pack "vty-mode-demo",T.pack "hjsmin",T.pack "vty-demo",T.pack "happy"])]
+  let path_and_binsB = [(C.pack "/home/gander/.stack/snapshots/x86_64-linux-tinfo6/lts-12.4/8.4.3/bin",[C.pack "hspec-discover",C.pack "cpphs",C.pack "clientsession-generate",C.pack "ppsh",C.pack "alex",C.pack "vty-mode-demo",C.pack "hjsmin",C.pack "vty-demo",C.pack "happy"])]
   --putStrLn ">>> COMMENT: map the 'fst' of 'path_and_bins':"
   --print $ map fst path_and_bins
   ----let fst_path = fst path_and_bins
@@ -129,20 +139,37 @@ main = do
   --let tups_of_exe_plus_path' = uncurry join_path' $ take 2 path_and_bins
   --let tups_of_exe_plus_path' = uncurry join_path path_and_bins
 
-  putStr ">>> COMMENT: 3rd test: supply a regex for a full path. pattern is: \""
+  putStr ">>> COMMENT: 3rd test: supply a regex for a full path. pattern (pat3) is: \""
   putStr pat3
-  --putStrLn "\""
-  putStrLn ">>> COMMENT: and the result is:"
+  putStrLn "\""
+  putStrLn ">>> COMMENT: 'final_list' contains:"
   let final_list = filter (=~ pat3) tups_of_exe_plus_path'
-  print $ filter (=~ pat3) tups_of_exe_plus_path'
+  --print $ filter (=~ pat3) tups_of_exe_plus_path'
   mapM_ print final_list
 
   --putStrLn ">>> COMMENT: fin"
+{-
+-- | build_full_paths $ take 5 good_fp_paths
+--build_full_paths :: [FilePath] -> [C.ByteString]
+--build_full_paths (fp:fps) = (get_binaries fp >>= join_path_binary (str_to_filepath fp)) : build_full_paths fps
+build_full_paths (fp:fps) = [full_paths : build_full_paths fps]
+  where
+    full_paths = do
+      contents <- getAbsoluteDirContents fp
+      return (contents)
+-}
+
+  -- | join_path_binary: 
+--join_path_binary :: [FilePath] -> [Char] -> [Char] -> [C.ByteString]
+join_path_binary fp_binaries path sep =  [(C.append path . C.append sep) exe  | exe <- fp_binaries]
 
 -- | Join 2 strings with FilePath.joinPath or (</>)
 join_path :: [Char] -> [[Char]] -> [T.Text]
 join_path path _ = []
 join_path path (exe:exes) = T.pack (path ++ "/" ++ exe) : join_path path exes
+
+sep :: C.ByteString
+sep = C.pack "/"
 
 slash :: T.Text
 slash = T.pack "/"
@@ -192,6 +219,11 @@ breakSpace (PS x s l) = accursedUnutterablePerformIO $ withForeignPtr x $ \p -> 
         | otherwise -> (PS x s i, PS x (s+i) (l-i))
 -}
 
+
+-- | Convert [FilePath] to ByteString
+filepath_to_bytes :: FilePath -> [C.ByteString]
+filepath_to_bytes [] = []
+filepath_to_bytes xs = map C.singleton xs
 
 -- | Convert [FilePath] to Text
 filepath_to_text :: FilePath -> [T.Text]

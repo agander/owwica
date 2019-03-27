@@ -1,27 +1,38 @@
 module Lib
-    ( getAbsoluteDirContents
+    ( fp_to_bytestring
+    , get_binaries
+    , getAllPathContents
+    , getAbsoluteDirContents
     , str_to_text
     , text_to_str
     , get_paths
-    , getAllPathContents
+    , lose_io
     --, myzip
     --, myzipWith
-    , lose_io
     --, zeta
     --, blah'
     --, blah
     --, woot
     ) where
 
-import System.Directory (getDirectoryContents)
+import System.Directory (listDirectory, getDirectoryContents)
 import System.FilePath ((</>))
 import qualified Data.Text as T
 import Data.List.Split (splitOn)
 --import qualified Data.List as L
 import Data.Foldable (foldMap)
 --import qualified Data.ByteString as B
+import qualified Data.ByteString.Char8 as C
 
 import Debug.Trace
+-- | fp_to_bytestring
+fp_to_bytestring :: [String] -> [C.ByteString]
+fp_to_bytestring (fp:fps) = C.pack fp : fp_to_bytestring fps
+
+-- | get_binaries
+get_binaries ::
+  (Monad m, Traversable t) => t FilePath -> m (IO (t [FilePath]))
+get_binaries fp = return $ mapM listDirectory fp
 
 -- | No idea what this does
 getAllPathContents :: Monad m => [FilePath] -> m [IO [FilePath]]
@@ -42,6 +53,14 @@ getAbsoluteDirContents dir = do
   contents <- getDirectoryContents dir
   --let fullFilePaths = map (dir </>) contents
   return $ map (dir </>) contents
+
+strs_to_bytestrs :: [String] -> [C.ByteString]
+strs_to_bytestrs [] = []
+--strs_to_bytestrs (str:strs) = (str_to_bytestr str) C.cons (strs_to_bytestrs strs)
+strs_to_bytestrs (str:strs) = (C.pack str) : (strs_to_bytestrs strs)
+
+str_to_bytestr :: String -> C.ByteString
+str_to_bytestr = C.pack
 
 str_to_text :: String -> T.Text
   --path <- T.pack $ getEnv "PATH"
@@ -110,6 +129,7 @@ myzipWith f [] [_] = []
 myzipWith f (x:xs) (y:ys) = x `f` y : myzipWith f xs ys
 
 --lose_io :: (IO a) -> a
+lose_io :: a -> a
 lose_io = id
 
 blah :: IO String

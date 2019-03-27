@@ -4,7 +4,7 @@
 }:
 mkDerivation {
   pname = "owwica";
-  version = "0.0.3";
+  version = "0.0.16";
   src = ./.;
   isLibrary = true;
   isExecutable = true;
