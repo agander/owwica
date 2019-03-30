@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 
-module Main where
+module Main (module Main) where
 
 import Data.List.Split (splitOn)
 import System.Environment (getEnv)
@@ -8,20 +8,18 @@ import System.Directory (listDirectory, doesDirectoryExist )
 import System.IO.Unsafe (unsafePerformIO)
 
 import Text.Regex.PCRE
---import System.FilePath(joinPath, (</>))
 import qualified Data.Text as T
 import Text.Printf
 
 import System.Console.CmdArgs
 import Data.Version
 
-import qualified Data.ByteString as B
 import qualified Data.ByteString.Char8 as C
 
 import Lib
 
 version :: Version
-version = makeVersion [0,0,16]
+version = makeVersion [0,0,17]
 
 insomma :: Version -> String-> String
 insomma vsn str = str ++ " " ++ showVersion vsn
@@ -29,6 +27,7 @@ insomma vsn str = str ++ " " ++ showVersion vsn
 newtype Args = Args{ search_criteria :: String }
               deriving (Show, Data, Typeable)
 
+owwica_cmd_hargs :: Args
 owwica_cmd_hargs = Args{search_criteria = "ch"
                } &= 
                --{ debug &= def &= }
@@ -43,7 +42,7 @@ main = do
   hargs <- cmdArgs owwica_cmd_hargs
   --putStrLn ">>> COMMENT: hargs"
   --print =<< cmdArgs owwica_cmd_hargs
-  --printf "%s: %s\n" "search_criteria" (search_criteria hargs)
+  printf "%s: %s\n" "search_criteria" (search_criteria hargs)
 
   --putStrLn ">>> COMMENT: program start"
 
@@ -160,8 +159,8 @@ build_full_paths (fp:fps) = [full_paths : build_full_paths fps]
 -}
 
 -- | Join 2 strings with FilePath.joinPath or (</>)
-join_path :: [Char] -> [[Char]] -> [T.Text]
-join_path path _ = []
+join_path :: String -> [String] -> [T.Text]
+join_path _ [] = []
 join_path path (exe:exes) = T.pack (path ++ "/" ++ exe) : join_path path exes
 
 sep :: C.ByteString
@@ -179,14 +178,15 @@ merge_exe_and_path = undefined
 -- | Expand out a tuple of: ("pat/h", ["exe1", "exe2", "exe3", ..]) into:
 --
 join_path' :: T.Text -> [T.Text] -> [String]
-join_path' path [] = []
-join_path' path (exe:exes) =  (T.unpack path ++ "/" ++ T.unpack exe) : join_path' path exes
---join_path' = undefined
+join_path' _ [] = []
+join_path' path exes =
+  map (\ exe -> T.unpack path ++ "/" ++ T.unpack exe) exes
+--(T.unpack path ++ "/" ++ T.unpack exe) : join_path' path exes
 
 -- | Convert paths into [FilePath]
-str_to_filepath :: [Char] -> FilePath
+str_to_filepath :: String -> FilePath
 str_to_filepath [] = []
-str_to_filepath (x:xs) = x : str_to_filepath xs
+str_to_filepath xs = xs
 
 -- | lists of lists to list
 
@@ -224,6 +224,6 @@ filepath_to_text xs = map T.singleton xs
 
 -- | ([^/])*([\w-\.]*ha[\w-\.]*)$
 -- | from <https://regexr.com/?2vpj8>
-build_pat :: [Char] -> [Char]
-build_pat pat = concat [ "([^/])*([\\w\\s-\\.]*" ++ pat ++ "[\\w\\s-\\.]*)$"]
+build_pat :: String -> String
+build_pat pat = "([^/])*([\\w\\s-\\.]*" ++ pat ++ "[\\w\\s-\\.]*)$"
 

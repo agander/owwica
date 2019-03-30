@@ -1,6 +1,5 @@
 module Lib
     ( get_full_paths
-    , join_path_binary
     , filepath_to_str
     , fp_to_bytestring
     , get_binaries
@@ -9,22 +8,14 @@ module Lib
     , str_to_text
     , text_to_str
     , get_paths
-    , lose_io
-    --, myzip
-    --, myzipWith
-    --, zeta
-    --, blah'
-    --, blah
-    --, woot
+    --, join_path_binary
     ) where
 
 import System.Directory (listDirectory, getDirectoryContents)
 import System.FilePath ((</>))
 import qualified Data.Text as T
 import Data.List.Split (splitOn)
---import qualified Data.List as L
 import Data.Foldable (foldMap)
---import qualified Data.ByteString as B
 import qualified Data.ByteString.Char8 as C
 
 import Debug.Trace
@@ -42,9 +33,9 @@ get_full_paths fp = do
 join_path_binary fp_binaries path sep =  [(C.append (C.pack path) . C.append sep) (C.pack exe)  | exe <- fp_binaries]
 
 -- | Convert [FilePath] into paths
-filepath_to_str :: FilePath -> [Char]
+filepath_to_str :: FilePath -> String
 filepath_to_str [] = []
-filepath_to_str (x:xs) = x : filepath_to_str xs
+filepath_to_str xs = xs
 
 -- | fp_to_bytestring
 fp_to_bytestring :: [String] -> [C.ByteString]
@@ -77,14 +68,12 @@ getAbsoluteDirContents dir = do
 
 strs_to_bytestrs :: [String] -> [C.ByteString]
 strs_to_bytestrs [] = []
---strs_to_bytestrs (str:strs) = (str_to_bytestr str) C.cons (strs_to_bytestrs strs)
-strs_to_bytestrs (str:strs) = (C.pack str) : (strs_to_bytestrs strs)
+strs_to_bytestrs strs = map C.pack strs
 
 str_to_bytestr :: String -> C.ByteString
 str_to_bytestr = C.pack
 
 str_to_text :: String -> T.Text
-  --path <- T.pack $ getEnv "PATH"
 str_to_text = T.pack
 
 text_to_str :: T.Text -> String
@@ -134,33 +123,4 @@ datumT = T.pack "cassava_eg.sh~\n\
   \dsdt.dat\n\
   \.fsconfig.sh.un~\n"
 
-
--- | Small exercise from haskellbook - ignore
-myzip :: [a] -> [b] -> [(a, b)]
-myzip [] [] = []
-myzip [_] [] = []
-myzip [] [_] = []
-myzip (x:xs) (y:ys) = (x,y) : myzip xs ys
-
--- | Small exercise from haskellbook - ignore
-myzipWith :: (a -> b -> c) -> [a] -> [b] -> [c]
-myzipWith f [] [] = []
-myzipWith f [_] [] = []
-myzipWith f [] [_] = []
-myzipWith f (x:xs) (y:ys) = x `f` y : myzipWith f xs ys
-
---lose_io :: (IO a) -> a
-lose_io :: a -> a
-lose_io = id
-
-blah :: IO String
-blah = return "blah"
-
-zeta :: IO Char
-zeta = return 'z'
-
-blah' = trace "outer trace" blah
-
-woot :: IO String
-woot = return (trace "inner trace" "woot")
 
