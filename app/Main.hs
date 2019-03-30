@@ -71,6 +71,10 @@ main = do
   -- | Get all binaries from the list of FilePath paths
   all_binaries <- mapM listDirectory $ take 5 good_fp_paths
 
+  all_bins <- mapM get_full_paths $ take 5 good_fp_paths
+  --let all_bins2 = C.concat all_bins
+  let all_bins2 = concat all_bins
+
   -- | (attempt to) zip a few paths and their binaries
   let paths_and_bins = zip paths_2 all_binaries
 
@@ -142,9 +146,15 @@ main = do
   putStr pat3
   putStrLn "\""
   putStrLn ">>> COMMENT: 'final_list' contains:"
-  let final_list = filter (=~ pat3) tups_of_exe_plus_path'
+  --let final_list = filter (=~ pat3) tups_of_exe_plus_path'
   --print $ filter (=~ pat3) tups_of_exe_plus_path'
-  mapM_ print final_list
+  --mapM_ print final_list
+  putStrLn ">>> COMMENT: and 'final_list' is:"
+  --let final_list = filter (=~ pat3) full_paths
+  let final_list = filter (=~ pat3) all_bins2
+  --print $ filter (=~ pat3) tups_of_exe_plus_path'
+
+  mapM_ (printf "%s\n" . C.unpack) final_list
 
   --putStrLn ">>> COMMENT: fin"
 {-
