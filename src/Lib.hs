@@ -1,3 +1,4 @@
+
 module Lib
     ( get_full_paths
     , filepath_to_str
@@ -18,7 +19,9 @@ import Data.List.Split (splitOn)
 import Data.Foldable (foldMap)
 import qualified Data.ByteString.Char8 as C
 
-import Debug.Trace
+--import Debug.Trace
+
+{-# ANN module "HLint: ignore Use camelCase" #-}
 
 get_full_paths :: FilePath -> IO [C.ByteString]
 get_full_paths fp = do 
@@ -30,6 +33,7 @@ get_full_paths fp = do
 
   -- | join_path_binary: 
 --join_path_binary :: [FilePath] -> [Char] -> [Char] -> [C.ByteString]
+join_path_binary :: [String] -> String -> C.ByteString -> [C.ByteString]
 join_path_binary fp_binaries path sep =  [(C.append (C.pack path) . C.append sep) (C.pack exe)  | exe <- fp_binaries]
 
 -- | Convert [FilePath] into paths
@@ -39,6 +43,7 @@ filepath_to_str xs = xs
 
 -- | fp_to_bytestring
 fp_to_bytestring :: [String] -> [C.ByteString]
+fp_to_bytestring [] = []
 fp_to_bytestring (fp:fps) = C.pack fp : fp_to_bytestring fps
 
 -- | get_binaries

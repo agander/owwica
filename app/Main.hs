@@ -1,10 +1,11 @@
+{-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE DeriveDataTypeable #-}
 
 module Main (module Main) where
 
 import Data.List.Split (splitOn)
 import System.Environment (getEnv)
-import System.Directory (listDirectory, doesDirectoryExist )
+import System.Directory (doesDirectoryExist )
 import System.IO.Unsafe (unsafePerformIO)
 
 import Text.Regex.PCRE
@@ -17,6 +18,9 @@ import Data.Version
 import qualified Data.ByteString.Char8 as C
 
 import Lib
+import BasePrelude
+
+-- {# HLINT ignore "Use camelCase" #-}
 
 version :: Version
 version = makeVersion [0,0,17]
@@ -24,13 +28,16 @@ version = makeVersion [0,0,17]
 insomma :: Version -> String-> String
 insomma vsn str = str ++ " " ++ showVersion vsn
 
-newtype Args = Args{ search_criteria :: String }
+data Args = Args{  search_criteria :: String
+                 --, debug :: Int
+                }
               deriving (Show, Data, Typeable)
 
 owwica_cmd_hargs :: Args
-owwica_cmd_hargs = Args{search_criteria = "ch"
+owwica_cmd_hargs = Args{  search_criteria = "nix"
+                        --, debug           = 0
                } &= 
-               --{ debug &= def &= }
+               --debug &= def &=
                summary (insomma version "Version:") &= 
                program "owwica" &=
                verbosityArgs [ignore] [name "silent", explicit] &=
@@ -41,10 +48,8 @@ main :: IO ()
 main = do
   hargs <- cmdArgs owwica_cmd_hargs
   --putStrLn ">>> COMMENT: hargs"
+  traceM ("!!! DEBUG: "  ++ show hargs)
   --print =<< cmdArgs owwica_cmd_hargs
-  printf "%s: %s\n" "search_criteria" (search_criteria hargs)
-
-  --putStrLn ">>> COMMENT: program start"
 
   -- | Get a String from getEnv "PATH"
   -- | return String
@@ -53,8 +58,8 @@ main = do
   -- | Split the path by ":"
   -- | return [[Char]]
   let paths = splitOn ":" path
-  let paths_2 = take 3 paths
-  --putStrLn ">>> COMMENT: a [list] of paths:"
+  -- [-Wunused-local-binds] let paths_2 = take 3 paths
+  --PP.pPrint ">>> COMMENT: a [list] of paths:" paths
   --print paths --_2
 
   -- | Convert the [[Char]] to [FilePath]
@@ -64,19 +69,16 @@ main = do
   -- | return [FilePath]
   let good_fp_paths = filter doesDirectoryExist' fp_paths
 
-  -- | foreach good_fp_path: do listDirectory and attach the path
-  -- | giving a full_path
-  --let full_paths = build_full_paths good_fp_paths -- >>= fp_to_bytestring
+  --printf "%s: [%s] in: %s" ">>> COMMENT: test for " pat2 "\"/usr/bin/devices\", \"/uzr/bin/usbhid-dump\""
 
   -- | Get all binaries from the list of FilePath paths
-  all_binaries <- mapM listDirectory $ take 5 good_fp_paths
+  -- [-Wunused-matches] all_binaries <- mapM listDirectory $ take 1 good_fp_paths
 
-  all_bins <- mapM get_full_paths $ take 5 good_fp_paths
-  --let all_bins2 = C.concat all_bins
+  all_bins <- mapM get_full_paths good_fp_paths
   let all_bins2 = concat all_bins
 
   -- | (attempt to) zip a few paths and their binaries
-  let paths_and_bins = zip paths_2 all_binaries
+  -- [-Wunused-local-binds] let paths_and_bins = zip paths_2 all_binaries
 
   -- | and print a few
   --putStrLn ">>> COMMENT: the concat'd [list] of all_binaries:"
@@ -85,9 +87,9 @@ main = do
 
   --putStrLn ">>> COMMENT: The zip\'ed (list of tuples) of each path and its binaries:"
   --print paths_and_bins
-  let path_and_bins = [("/home/gander/.stack/snapshots/x86_64-linux-tinfo6/lts-12.4/8.4.3/bin",["hspec-discover","cpphs","clientsession-generate","ppsh","alex","vty-mode-demo","hjsmin","vty-demo","happy"])]
-  let path_and_binsT = [(T.pack "/home/gander/.stack/snapshots/x86_64-linux-tinfo6/lts-12.4/8.4.3/bin",[T.pack "hspec-discover",T.pack "cpphs",T.pack "clientsession-generate",T.pack "ppsh",T.pack "alex",T.pack "vty-mode-demo",T.pack "hjsmin",T.pack "vty-demo",T.pack "happy"])]
-  let path_and_binsB = [(C.pack "/home/gander/.stack/snapshots/x86_64-linux-tinfo6/lts-12.4/8.4.3/bin",[C.pack "hspec-discover",C.pack "cpphs",C.pack "clientsession-generate",C.pack "ppsh",C.pack "alex",C.pack "vty-mode-demo",C.pack "hjsmin",C.pack "vty-demo",C.pack "happy"])]
+  -- [-Wunused-local-binds] let path_and_bins = [("/home/gander/.stack/snapshots/x86_64-linux-tinfo6/lts-12.4/8.4.3/bin",["hspec-discover","cpphs","clientsession-generate","ppsh","alex","vty-mode-demo","hjsmin","vty-demo","happy"])]
+  -- [-Wunused-local-binds] let path_and_binsT = [(T.pack "/home/gander/.stack/snapshots/x86_64-linux-tinfo6/lts-12.4/8.4.3/bin",[T.pack "hspec-discover",T.pack "cpphs",T.pack "clientsession-generate",T.pack "ppsh",T.pack "alex",T.pack "vty-mode-demo",T.pack "hjsmin",T.pack "vty-demo",T.pack "happy"])]
+  -- [-Wunused-local-binds] let path_and_binsB = [(C.pack "/home/gander/.stack/snapshots/x86_64-linux-tinfo6/lts-12.4/8.4.3/bin",[C.pack "hspec-discover",C.pack "cpphs",C.pack "clientsession-generate",C.pack "ppsh",C.pack "alex",C.pack "vty-mode-demo",C.pack "hjsmin",C.pack "vty-demo",C.pack "happy"])]
   --putStrLn ">>> COMMENT: map the 'fst' of 'path_and_bins':"
   --print $ map fst path_and_bins
   ----let fst_path = fst path_and_bins
@@ -95,15 +97,15 @@ main = do
   --print $ concatMap snd path_and_bins
   ----print map (joinPath' fst_path ) (snd path_and_bins)
 
-  putStrLn "!!! TEST: A join of (fst path_and_bins !! 0) and (snd path_and_bins !! 0):"
-  let tups_of_exe_plus_path = uncurry join_path (head path_and_bins)
-  mapM_ (print . T.unpack) tups_of_exe_plus_path
+  --putStrLn "!!! TEST: A join of (fst path_and_bins !! 0) and (snd path_and_bins !! 0):"
+  --let tups_of_exe_plus_path = uncurry join_path (head path_and_bins)
+  --mapM_ (print . T.unpack) tups_of_exe_plus_path
 
   -- | grab a few and concat them as thats the way they will be in the end.
-  let first_5 = concat {-. take 6 $-} all_binaries
+  -- [-Wunused-local-binds] let first_5 = concat {-. take 6 $-} all_binaries
 
   -- | convert all_binaries :: [FilePath] to [[Char]]
-  let all_bins_strings = map filepath_to_str first_5
+  -- [-Wunused-local-binds] let all_bins_strings = map filepath_to_str first_5
 
   -- | convert all_binaries :: [FilePath] to [[T.Text]]
   --let all_bins_text = T.map filepath_to_text first_5
@@ -114,7 +116,7 @@ main = do
   -- | Regex.PCRE
   -- | set up a pattern to match on.
   --let pat = (search_criteria hargs) --"pp"
-  let pat = build_pat (search_criteria hargs)
+  -- [-Wunused-local-binds] let pat = build_pat (search_criteria hargs)
 
   -- | filter first_5 for pat ("ghc")
   --putStr ">>> COMMENT: pattern is: \""
@@ -138,14 +140,17 @@ main = do
   -- | test to match whatever is a main arg to the list of full path exes
   let pat3 = build_pat (search_criteria hargs)
   -- | swap the comments on these next two for debugging
-  let tups_of_exe_plus_path' = uncurry join_path' (head path_and_binsT)
+  -- [-Wunused-local-binds] let tups_of_exe_plus_path' = uncurry join_path' (head path_and_binsT)
   --let tups_of_exe_plus_path' = uncurry join_path' $ take 2 path_and_bins
   --let tups_of_exe_plus_path' = uncurry join_path path_and_bins
 
-  putStr ">>> COMMENT: 3rd test: supply a regex for a full path. pattern (pat3) is: \""
+  {-putStr ">>> COMMENT: 3rd test: supply a regex for a full path. pattern (pat3) is: \"\n"
   putStr pat3
-  putStrLn "\""
-  putStrLn ">>> COMMENT: 'final_list' contains:"
+  putStrLn "\""-}
+  traceM ("!!! DEBUG: 3rd test: supply a regex for a full path. pattern (pat3) is: \"\n"
+    ++ show pat3 ++ "\"")
+
+  --putStrLn ">>> COMMENT: 'final_list' contains:"
   --let final_list = filter (=~ pat3) tups_of_exe_plus_path'
   --print $ filter (=~ pat3) tups_of_exe_plus_path'
   --mapM_ print final_list
