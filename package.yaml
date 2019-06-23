@@ -1,5 +1,5 @@
 name:                owwica
-version:             0.0.17
+version:             0.0.18
 #synopsis:
 #description:
 homepage:            https://github.com/agander/owwica#readme
@@ -12,24 +12,20 @@ category:            Student
 extra-source-files:
   - README.md
 
-#allow-newer: disabled
-#allow-newer: false
-
 dependencies:
-  - base >= 4.7 && < 5
-  - split >= 0.2.3
-  - directory >= 1.3.0.0
-  - regex >= 1.0.1.3
-  - regex-with-pcre >= 1.0.1.3
-  - template-haskell == 2.11.1.0
+  - base             >= 4.7 && < 5
+  - split            >= 0.2.3
+  - directory        >= 1.3.0.0
   - regex-pcre
-  - hspec == 2.*
+  - hspec            == 2.*
   - QuickCheck
-  - filepath >= 1.4.1
-  - text >= 1.2.2.2
-  - bytestring >= 0.10.8.1
+  - filepath         >= 1.4.1
+  - text             >= 1.2.2.2
+  - bytestring       >= 0.10.8.1
   - hledger-lib
   - base-prelude
+  - io-streams       >= 1.5.1.0
+  - zlib             >= 0.6.2
 library:
   source-dirs: src
   exposed-modules:
@@ -99,51 +95,7 @@ tests:
       - temporary
       - mockery >= 0.3
       - interpolate
-      - template-haskell
       - HUnit >= 1.6.0.0
 
 build-tools: hspec-discover
 
-
-
-#name: dtmpl
-#version: '0.0.4'
-#category: Student
-#license: BSD3
-#github: agander/dtmpl
-#extra-source-files:
-#- README.md
-#executables:
-#  dtmpl:
-#    main: Main.hs
-#    source-dirs: app
-#    ghc-options:
-#    - -Wall
-#    - -threaded
-#    - -rtsopts
-#    - -with-rtsopts=-N
-#    dependencies:
-#    - base
-#    - dtmpl
-#    - directory >=1.3.0.0
-#    - filepath >=1.4.1
-#    - regex >=0.0.5
-#    - regex-pcre >=0.0.5
-#    - bytestring
-#    - text
-#    - megaparsec
-#    - cassava >=0.4.5.0
-#tests:
-#  dtmpl-test:
-#    main: Spec.hs
-#    source-dirs: test
-#    ghc-options:
-#    - -threaded
-#    - -rtsopts
-#    - -with-rtsopts=-N
-#    dependencies:
-#    - base
-#    - dtmpl
-#    - test-framework
-#    - test-framework-quickcheck2
-#    - QuickCheck

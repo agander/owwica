@@ -1,6 +1,7 @@
 
 module Lib
-    ( get_full_paths
+    ( grep
+    , get_full_paths
     , filepath_to_str
     , fp_to_bytestring
     , get_binaries
@@ -19,7 +20,19 @@ import Data.List.Split (splitOn)
 import Data.Foldable (foldMap)
 import qualified Data.ByteString.Char8 as C
 
---import Debug.Trace
+import System.IO.Streams (InputStream)
+import qualified System.IO.Streams as Streams
+import System.IO
+
+import Debug.Trace
+
+grep :: C.ByteString -> FilePath -> IO ()
+grep pattern file = withFile file ReadMode $ \h -> do
+  is <- Streams.handleToInputStream h >>=
+        Streams.lines                 >>=
+        Streams.filter (C.isInfixOf pattern)
+  os <- Streams.unlines Streams.stdout
+  Streams.connect is os
 
 {-# ANN module "HLint: ignore Use camelCase" #-}
 

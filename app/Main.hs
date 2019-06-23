@@ -20,10 +20,13 @@ import qualified Data.ByteString.Char8 as C
 import Lib
 import BasePrelude
 
+import qualified Data.ByteString.Lazy as L
+import qualified Codec.Compression.GZip as GZip
+
 -- {# HLINT ignore "Use camelCase" #-}
 
 version :: Version
-version = makeVersion [0,0,17]
+version = makeVersion [0,0,18]
 
 insomma :: Version -> String-> String
 insomma vsn str = str ++ " " ++ showVersion vsn
@@ -34,7 +37,7 @@ data Args = Args{  search_criteria :: String
               deriving (Show, Data, Typeable)
 
 owwica_cmd_hargs :: Args
-owwica_cmd_hargs = Args{  search_criteria = "nix"
+owwica_cmd_hargs = Args{  search_criteria = ""
                         --, debug           = 0
                } &= 
                --debug &= def &=
@@ -43,12 +46,13 @@ owwica_cmd_hargs = Args{  search_criteria = "nix"
                verbosityArgs [ignore] [name "silent", explicit] &=
                details ["More details on github.com/agander/owwica"] &=
                help "owwica:Usage: [-?/--help] [-V/--version] [--numeric-version] [-v|--verbose] "
+               --help def [explicit, name "h", "owwica:Usage: [-h/--help] [-V/--version] [--numeric-version] [-v|--verbose] "]
 
 main :: IO ()
 main = do
   hargs <- cmdArgs owwica_cmd_hargs
   --putStrLn ">>> COMMENT: hargs"
-  traceM ("!!! DEBUG: "  ++ show hargs)
+  --traceM ("!!! DEBUG: "  ++ show hargs)
   --print =<< cmdArgs owwica_cmd_hargs
 
   -- | Get a String from getEnv "PATH"
@@ -147,19 +151,34 @@ main = do
   {-putStr ">>> COMMENT: 3rd test: supply a regex for a full path. pattern (pat3) is: \"\n"
   putStr pat3
   putStrLn "\""-}
-  traceM ("!!! DEBUG: 3rd test: supply a regex for a full path. pattern (pat3) is: \"\n"
-    ++ show pat3 ++ "\"")
+  --traceM ("!!! DEBUG: 3rd test: supply a regex for a full path. pattern (pat3) is: \"\n" ++ show pat3 ++ "\"")
 
   --putStrLn ">>> COMMENT: 'final_list' contains:"
   --let final_list = filter (=~ pat3) tups_of_exe_plus_path'
   --print $ filter (=~ pat3) tups_of_exe_plus_path'
   --mapM_ print final_list
-  putStrLn ">>> COMMENT: and 'final_list' is:"
+  --putStrLn ">>> COMMENT: and 'final_list' is:"
   --let final_list = filter (=~ pat3) full_paths
   let final_list = filter (=~ pat3) all_bins2
   --print $ filter (=~ pat3) tups_of_exe_plus_path'
 
   mapM_ (printf "%s\n" . C.unpack) final_list
+
+  {-
+  -- | TODO:
+  -- | Activated by a switch, if there is a man page for an executable then open it 
+  -- | and read the '.SH NAME' value
+  -- | regex for the line after /^.SH NAME/: https://regexr.com/4frq4
+
+  Lib.grep (C.pack "^.SH \"NAME\"") "/usr/share/man/man1/bash.1.gz"
+  -- (printf "%s\n" . C.unpack) man_name
+  --C.putStrLn man_name
+ 
+  content <- fmap GZip.decompress (L.readFile "/usr/share/man/man1/bash.1.gz")
+  let pat_desc = ".SH NAME[\\r\\n](.*)"
+  let desc = filter (=~ pat_desc) content
+  --traceM ("!!! DEBUG: man desc is: \"\n" ++ show pat_desc ++ "\"")
+  -}
 
   --putStrLn ">>> COMMENT: fin"
 {-
