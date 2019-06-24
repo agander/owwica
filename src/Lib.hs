@@ -10,6 +10,9 @@ module Lib
     , str_to_text
     , text_to_str
     , get_paths
+    , doesDirectoryExist'
+    , str_to_filepath
+    , build_pat
     --, join_path_binary
     ) where
 
@@ -20,6 +23,8 @@ import Data.List.Split (splitOn)
 import Data.Foldable (foldMap)
 import qualified Data.ByteString.Char8 as C
 
+import System.Directory (doesDirectoryExist )
+import System.IO.Unsafe (unsafePerformIO)
 import System.IO.Streams (InputStream)
 import qualified System.IO.Streams as Streams
 import System.IO
@@ -35,6 +40,77 @@ grep pattern file = withFile file ReadMode $ \h -> do
   Streams.connect is os
 
 {-# ANN module "HLint: ignore Use camelCase" #-}
+
+-- | a version which extracts the value from the IO
+-- Original: doesDirectoryExist :: FilePath -> IO Bool
+doesDirectoryExist' :: FilePath -> Bool
+doesDirectoryExist' fp = unsafePerformIO $ doesDirectoryExist fp
+{-# NOINLINE doesDirectoryExist' #-}
+
+-- | Convert paths into [FilePath]
+str_to_filepath :: String -> FilePath
+str_to_filepath [] = []
+str_to_filepath xs = xs
+
+-- | ([^/])*([\w-\.]*ha[\w-\.]*)$
+-- | from <https://regexr.com/?2vpj8>
+build_pat :: String -> String
+build_pat pat = "([^/])*([\\w\\s-\\.]*" ++ pat ++ "[\\w\\s-\\.]*)$"
+
+{-
+-- | Join 2 strings with FilePath.joinPath or (</>)
+join_path :: String -> [String] -> [T.Text]
+join_path _ [] = []
+join_path path (exe:exes) = T.pack (path ++ "/" ++ exe) : join_path path exes
+
+sep :: C.ByteString
+sep = C.pack "/"
+
+slash :: T.Text
+slash = T.pack "/"
+
+-- let path_and_bins = [("/home/gander/.stack/snapshots/x86_64-linux-tinfo6/lts-11.1/8.2.2/bin",["hspec-discover","cpphs","clientsession-generate","ppsh","alex","vty-mode-demo","hjsmin","vty-demo","happy"])]
+merge_exe_and_path :: [(T.Text, [T.Text])] -> [(T.Text, T.Text)]
+merge_exe_and_path = undefined
+--merge_exe_and_path (path, exes) = [ (a,b) | a <- path, b <- exes ]
+--(1,'a'),(1,'b'),(1,'c'),(2,'a'),(2,'b'),
+
+-- | Expand out a tuple of: ("pat/h", ["exe1", "exe2", "exe3", ..]) into:
+--
+join_path' :: T.Text -> [T.Text] -> [String]
+join_path' _ [] = []
+join_path' path exes =
+  map (\ exe -> T.unpack path ++ "/" ++ T.unpack exe) exes
+--(T.unpack path ++ "/" ++ T.unpack exe) : join_path' path exes
+
+-- | lists of lists to list
+
+{- | 'breakSpace' returns the pair of ByteStrings when the argument is
+-- broken at the first whitespace byte. I.e.
+--
+-- > break isSpace == breakSpace
+--
+breakSpace :: ByteString -> (ByteString,ByteString)
+breakSpace (PS x s l) = accursedUnutterablePerformIO $ withForeignPtr x $ \p -> do
+    i <- firstspace (p `plusPtr` s) 0 l
+    return $! extcase () of {_
+        | i == 0    -> (empty, PS x s l)
+        | i == l    -> (PS x s l, empty)
+        | otherwise -> (PS x s i, PS x (s+i) (l-i))
+-}
+
+
+-- | Convert [FilePath] to ByteString
+filepath_to_bytes :: FilePath -> [C.ByteString]
+filepath_to_bytes [] = []
+filepath_to_bytes xs = map C.singleton xs
+
+-- | Convert [FilePath] to Text
+filepath_to_text :: FilePath -> [T.Text]
+filepath_to_text [] = []
+filepath_to_text xs = map T.singleton xs
+
+-}
 
 get_full_paths :: FilePath -> IO [C.ByteString]
 get_full_paths fp = do 
