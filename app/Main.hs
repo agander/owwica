@@ -32,18 +32,18 @@ insomma :: Version -> String-> String
 insomma vsn str = str ++ " " ++ showVersion vsn
 
 data Args = Args{  search_criteria :: String
-                 --, debug :: Int
+                 , verbose :: Int
                 }
               deriving (Show, Data, Typeable)
 
 owwica_cmd_hargs :: Args
 owwica_cmd_hargs = Args{  search_criteria = ""
-                        --, debug           = 0
+                        , verbose         = 0
                } &= 
-               --debug &= def &=
+               --verbosity &=
                summary (insomma version "Version:") &= 
                program "owwica" &=
-               verbosityArgs [ignore] [name "silent", explicit] &=
+               --verbosityArgs [ignore] [name "silent", explicit] &=
                details ["More details on github.com/agander/owwica"] &=
                help "owwica:Usage: [-?/--help] [-V/--version] [--numeric-version] [-v|--verbose] "
                --help def [explicit, name "h", "owwica:Usage: [-h/--help] [-V/--version] [--numeric-version] [-v|--verbose] "]
