@@ -2,17 +2,17 @@
 module Lib
     ( grep
     , get_full_paths
-    , filepath_to_str
-    , fp_to_bytestring
-    , get_binaries
-    , getAllPathContents
-    , getAbsoluteDirContents
-    , str_to_text
-    , text_to_str
-    , get_paths
     , doesDirectoryExist'
     , str_to_filepath
     , build_pat
+    --, filepath_to_str
+    --, fp_to_bytestring
+    --, get_binaries
+    --, getAllPathContents
+    --, getAbsoluteDirContents
+    --, str_to_text
+    --, text_to_str
+    --, get_paths
     --, join_path_binary
     ) where
 
@@ -39,7 +39,13 @@ grep pattern file = withFile file ReadMode $ \h -> do
   os <- Streams.unlines Streams.stdout
   Streams.connect is os
 
-{-# ANN module "HLint: ignore Use camelCase" #-}
+get_full_paths :: FilePath -> IO [C.ByteString]
+get_full_paths fp = do 
+    all_binaries <- listDirectory fp
+    --let fpB = C.pack $ filepath_to_str fp
+    let fpS = Lib.filepath_to_str fp
+    --return $ join_path_binary all_binaries fpB $ C.pack "/"
+    return $ join_path_binary all_binaries fpS $ C.pack "/"
 
 -- | a version which extracts the value from the IO
 -- Original: doesDirectoryExist :: FilePath -> IO Bool
@@ -111,14 +117,6 @@ filepath_to_text [] = []
 filepath_to_text xs = map T.singleton xs
 
 -}
-
-get_full_paths :: FilePath -> IO [C.ByteString]
-get_full_paths fp = do 
-    all_binaries <- listDirectory fp
-    --let fpB = C.pack $ filepath_to_str fp
-    let fpS = Lib.filepath_to_str fp
-    --return $ join_path_binary all_binaries fpB $ C.pack "/"
-    return $ join_path_binary all_binaries fpS $ C.pack "/"
 
   -- | join_path_binary: 
 --join_path_binary :: [FilePath] -> [Char] -> [Char] -> [C.ByteString]
@@ -216,5 +214,7 @@ datumT = T.pack "cassava_eg.sh~\n\
   \gash\n\
   \dsdt.dat\n\
   \.fsconfig.sh.un~\n"
+
+{-# ANN module "HLint: ignore Use camelCase" #-}
 
 
