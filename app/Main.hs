@@ -4,7 +4,7 @@
 module Main (module Main) where
 
 import Data.List.Split (splitOn)
-import System.Environment (getEnv)
+import System.Environment (getEnv, getProgName)
 
 import Text.Regex.PCRE
 import qualified Data.Text as T
@@ -21,22 +21,24 @@ import BasePrelude
 import qualified Data.ByteString.Lazy as L
 import qualified Codec.Compression.GZip as GZip
 
+import System.IO (hPutStrLn, hPutStr, stderr)
+
 -- {# HLINT ignore "Use camelCase" #-}
 
 version :: Version
-version = makeVersion [0,0,18]
+version = makeVersion [0,0,19]
 
 insomma :: Version -> String-> String
 insomma vsn str = str ++ " " ++ showVersion vsn
 
 data Args = Args{  search_criteria :: String
-                 , verbose :: Int
+                 , verbose :: Bool
                 }
               deriving (Show, Data, Typeable)
 
 owwica_cmd_hargs :: Args
 owwica_cmd_hargs = Args{  search_criteria = ""
-                        , verbose         = 0
+                        , verbose         = False
                } &= 
                --verbosity &=
                summary (insomma version "Version:") &= 
@@ -46,12 +48,41 @@ owwica_cmd_hargs = Args{  search_criteria = ""
                help "owwica:Usage: [-?/--help] [-V/--version] [--numeric-version] [-v|--verbose] "
                --help def [explicit, name "h", "owwica:Usage: [-h/--help] [-V/--version] [--numeric-version] [-v|--verbose] "]
 
+data Verbose = Error | Ok | Warning
+
+{-
+ get_verbose_level :: Int -> Verbose
+get_verbose_level v 
+  | v == 0 = Ok
+  | v >  0 = Error
+  | v <  0 = Warning
+-}
+
+dbg_output :: String -> Bool -> IO ()
+dbg_output msg follow_on = do
+  hPutStr stderr ">>> COMMENT: "
+  case follow_on of
+    True  -> hPutStr   stderr (msg ++ " ")
+    False -> hPutStrLn stderr msg
+
+
 main :: IO ()
 main = do
   hargs <- cmdArgs owwica_cmd_hargs
-  --putStrLn ">>> COMMENT: hargs"
-  --traceM ("!!! DEBUG: "  ++ show hargs)
-  --print =<< cmdArgs owwica_cmd_hargs
+  prog <- getProgName
+  if verbose hargs
+    then do
+      dbg_output prog True
+      hPutStrLn stderr "starts"
+    else
+      hPutStr stderr ""
+
+  if verbose hargs
+    then do
+      dbg_output "hargs:" True
+      print =<< cmdArgs owwica_cmd_hargs
+    else
+      hPutStr stderr ""
 
   -- | Get a String from getEnv "PATH"
   -- | return String
@@ -149,7 +180,11 @@ main = do
   {-putStr ">>> COMMENT: 3rd test: supply a regex for a full path. pattern (pat3) is: \"\n"
   putStr pat3
   putStrLn "\""-}
-  --traceM ("!!! DEBUG: 3rd test: supply a regex for a full path. pattern (pat3) is: \"\n" ++ show pat3 ++ "\"")
+  if verbose hargs
+    then do
+      dbg_output "3rd test: supply a regex for a full path. pattern (pat3) is: \"\n" True
+      traceM (show pat3 ++ "\"")
+    else hPutStr stderr ""
 
   --putStrLn ">>> COMMENT: 'final_list' contains:"
   --let final_list = filter (=~ pat3) tups_of_exe_plus_path'
