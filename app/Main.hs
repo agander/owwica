@@ -98,13 +98,12 @@ main = do
   -- | Convert the [[Char]] to [FilePath]
   let fp_paths = map str_to_filepath paths
 
-  -- | Check that the fp_paths are good
+  -- | Filter the list and return only FilePath's that exist.
   -- | return [FilePath]
   let good_fp_paths = filter doesDirectoryExist' fp_paths
 
-  --printf "%s: [%s] in: %s" ">>> COMMENT: test for " pat2 "\"/usr/bin/devices\", \"/uzr/bin/usbhid-dump\""
-
   -- | Get all binaries from the list of FilePath paths
+  -- | and then concat into one list.
   -- [-Wunused-matches] all_binaries <- mapM listDirectory $ take 1 good_fp_paths
 
   all_bins <- mapM get_full_paths good_fp_paths

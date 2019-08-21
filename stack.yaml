@@ -77,3 +77,7 @@ extra-deps:
 #  enable: true
 #  packages: [glpk, pcre]
 
+build:
+  library-profiling: true
+  executable-profiling: true
+
