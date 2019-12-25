@@ -1,5 +1,5 @@
 name:                owwica
-version:             0.0.19
+version:             0.0.20
 #synopsis:
 #description:
 homepage:            https://github.com/agander/owwica#readme
@@ -26,6 +26,10 @@ dependencies:
   - base-prelude
   - io-streams       >= 1.5.1.0
   - zlib             >= 0.6.2
+
+default-extensions:
+- OverloadedStrings
+
 library:
   source-dirs: src
   exposed-modules:

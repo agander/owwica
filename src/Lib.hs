@@ -118,7 +118,7 @@ filepath_to_text xs = map T.singleton xs
 
 -}
 
-  -- | join_path_binary: 
+-- | join_path_binary: 
 --join_path_binary :: [FilePath] -> [Char] -> [Char] -> [C.ByteString]
 join_path_binary :: [String] -> String -> C.ByteString -> [C.ByteString]
 join_path_binary fp_binaries path sep =  [(C.append (C.pack path) . C.append sep) (C.pack exe)  | exe <- fp_binaries]
@@ -214,7 +214,5 @@ datumT = T.pack "cassava_eg.sh~\n\
   \gash\n\
   \dsdt.dat\n\
   \.fsconfig.sh.un~\n"
-
-{-# ANN module "HLint: ignore Use camelCase" #-}
 
 

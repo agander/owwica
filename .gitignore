@@ -71,4 +71,7 @@ dist-newstyle/
 /Shake
 /.shake.html
 .stack-work/
+.*`
+*~
+.*.sw[op]
 
