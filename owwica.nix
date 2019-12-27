@@ -1,7 +1,7 @@
-{ mkDerivation, base, bytestring, directory, filepath, regex
-, regex-pcre, regex-with-pcre, split, stdenv, template-haskell
-, text, HUnit, QuickCheck, base-prelude, cmdargs, hledger-lib
-, hspec, interpolate, io-streams, mockery, temporary, zlib
+{ mkDerivation, base, base-prelude, bytestring, cmdargs
+, directory, filepath, hledger-lib, hpack, hspec, hspec-discover
+, HUnit, interpolate, io-streams, mockery, QuickCheck, regex-pcre
+, split, stdenv, temporary, text, zlib
 }:
 mkDerivation {
   pname = "owwica";
@@ -10,15 +10,23 @@ mkDerivation {
   isLibrary = true;
   isExecutable = true;
   libraryHaskellDepends = [
-    base bytestring directory filepath regex regex-pcre regex-with-pcre
-    split template-haskell text HUnit QuickCheck base-prelude cmdargs
-    hledger-lib hspec interpolate io-streams mockery temporary zlib
+    base base-prelude bytestring directory filepath hledger-lib hspec
+    io-streams QuickCheck regex-pcre split text zlib
   ];
+  libraryToolDepends = [ hpack hspec-discover ];
   executableHaskellDepends = [
-    base directory filepath regex regex-pcre regex-with-pcre split
-    template-haskell text HUnit QuickCheck base-prelude cmdargs
-    hledger-lib hspec interpolate io-streams mockery temporary zlib
+    base base-prelude bytestring cmdargs directory filepath hledger-lib
+    hspec io-streams QuickCheck regex-pcre split text zlib
   ];
-  homepage = "https://github.com/agander/owwica#readme";
+  executableToolDepends = [ hspec-discover ];
+  testHaskellDepends = [
+    base base-prelude bytestring directory filepath hledger-lib hspec
+    HUnit interpolate io-streams mockery QuickCheck regex-pcre split
+    temporary text zlib
+  ];
+  testToolDepends = [ hspec-discover ];
+  prePatch = "hpack";
+  homepage = "https://gitlab.com/agander/owwica/blob/master/README.md";
   license = stdenv.lib.licenses.gpl3;
 }
+

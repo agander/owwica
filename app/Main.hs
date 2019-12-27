@@ -26,31 +26,28 @@ import System.IO (hPutStrLn, hPutStr, stderr)
 -- {# HLINT ignore "Use camelCase" #-}
 
 version :: Version
-version = makeVersion [0,0,19]
+version = makeVersion [0,0,21]
 
 insomma :: Version -> String-> String
 insomma vsn str = str ++ " " ++ showVersion vsn
 
-data Args = Args{  search_criteria :: String
-                 , verbose :: Bool
-                }
-              deriving (Show, Data, Typeable)
+data Args =
+  Args{  search_criteria :: String }
+  deriving (Show, Data, Typeable)
 
 owwica_cmd_hargs :: Args
-owwica_cmd_hargs = Args{  search_criteria = ""
-                        , verbose         = False
-               } &= 
-               --verbosity &=
-               summary (insomma version "Version:") &= 
-               program "owwica" &=
-               --verbosityArgs [ignore] [name "silent", explicit] &=
-               details ["More details on github.com/agander/owwica"] &=
-               help "owwica:Usage: [-?/--help] [-V/--version] [--numeric-version] [-v|--verbose] "
-               --help def [explicit, name "h", "owwica:Usage: [-h/--help] [-V/--version] [--numeric-version] [-v|--verbose] "]
-
-data Verbose = Error | Ok | Warning
+owwica_cmd_hargs =
+  Args{  search_criteria = def &= args } &= 
+         verbosity &=
+         summary (insomma version "owwica: version:") &= 
+         program "owwica" &=
+         details ["More details on http://gitlab.com/agander/owwica"] &=
+         help "owwica:Usage: [-?/--help] [-V/--version] [--numeric-version] [-v|--verbose] "
+         --help def [explicit, name "h", "owwica:Usage: [-h/--help] [-V/--version] [--numeric-version] [-v|--verbose] "]
 
 {-
+data Verbose = Error | Ok | Warning
+
  get_verbose_level :: Int -> Verbose
 get_verbose_level v 
   | v == 0 = Ok
@@ -70,19 +67,13 @@ main :: IO ()
 main = do
   hargs <- cmdArgs owwica_cmd_hargs
   prog <- getProgName
-  if verbose hargs
-    then do
-      dbg_output prog True
-      hPutStrLn stderr "starts"
-    else
-      hPutStr stderr ""
-
-  if verbose hargs
-    then do
-      dbg_output "hargs:" True
-      print =<< cmdArgs owwica_cmd_hargs
-    else
-      hPutStr stderr ""
+  mapM whenLoud [dbg_output prog True, hPutStrLn stderr "starts"]
+  {-
+  -}
+  mapM whenLoud [
+    dbg_output "hargs:" True,
+    print =<< cmdArgs owwica_cmd_hargs
+    ]
 
   -- | Get a String from getEnv "PATH"
   -- | return String
@@ -176,15 +167,16 @@ main = do
   --let tups_of_exe_plus_path' = uncurry join_path' $ take 2 path_and_bins
   --let tups_of_exe_plus_path' = uncurry join_path path_and_bins
 
-  {-putStr ">>> COMMENT: 3rd test: supply a regex for a full path. pattern (pat3) is: \"\n"
+  {-
+  putStr ">>> COMMENT: 3rd test: supply a regex for a full path. pattern (pat3) is: \"\n"
   putStr pat3
-  putStrLn "\""-}
+  putStrLn "\""
   if verbose hargs
     then do
       dbg_output "3rd test: supply a regex for a full path. pattern (pat3) is: \"\n" True
       traceM (show pat3 ++ "\"")
     else hPutStr stderr ""
-
+  -}
   --putStrLn ">>> COMMENT: 'final_list' contains:"
   --let final_list = filter (=~ pat3) tups_of_exe_plus_path'
   --print $ filter (=~ pat3) tups_of_exe_plus_path'
