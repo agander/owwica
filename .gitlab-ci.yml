@@ -1,7 +1,7 @@
 image: haskell:8.6.5
 
 before_script:
-  - apt-get update && apt-get install -y libpcre2 libpcre2-dev libpcre3 libpcre3-dev
+  - apt-get update && apt-get install -y libpcre2-dev libpcre3 libpcre3-dev
 
 variables:
   STACK_ROOT: "${CI_PROJECT_DIR}/.stack-root"
