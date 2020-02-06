@@ -1,11 +1,7 @@
 image: haskell:8.6.5
 
-addons:
-  apt:
-    packages:
-    - pcre-dev
-    - pcre2-dev
-
+before_script:
+  - apt update && apt -y pcre-dev pcre2-dev
 
 variables:
   STACK_ROOT: "${CI_PROJECT_DIR}/.stack-root"
